@@ -10,6 +10,10 @@ import time
 from datetime import datetime
 import csv
 
+import sys
+print(sys.executable)
+
+
 # Selenium Options, run headless (in background), ignore errors
 options = Options()
 options.add_argument("--headless")
@@ -51,7 +55,7 @@ def write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high):
         [days_passed, nvdu_high, nvdu_low, wbd_high, wbd_low]
     ]
 
-    with open("stock_prices.csv", mode="a", newline="") as file:
+    with open(r"C:\Users\btmun\OneDrive\Desktop\StockData\stock_prices.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(data)
 
@@ -64,5 +68,7 @@ wbd_low = float(wbd_range[0])
 wbd_high = float(wbd_range[1])
 
 # Finishing tasks
+print(nvdu_low, nvdu_high, wbd_low, wbd_high)
+time.sleep(30)
 write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high)
 driver.quit()
