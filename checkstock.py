@@ -9,20 +9,12 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from datetime import datetime
 import csv
-
 import sys
-print(sys.executable)
 
-
-# Selenium Options, run headless (in background), ignore errors
-options = Options()
-options.add_argument("--headless")
-options.add_argument("--disable-gpu")
-options.add_argument("--ignore-certificate-errors")
-
-# Chrome web driver set to Selenium Service
-service = Service(r"C:\Users\btmun\OneDrive\Desktop\StockData\chromedriver-win64\chromedriver.exe")
-driver = webdriver.Chrome(service=service, options=options)
+# Set up mode from arguments if they exist, otherwise assume mode 0
+mode = 0
+if (len(sys.argv) > 1):
+    mode = sys.argv[1]
 
 # Current shares of desired stocks
 NVDU_SHARES = 2.01
@@ -35,8 +27,22 @@ days_ran = datetime.strptime(today.strftime("%Y-%m-%d"), "%Y-%m-%d")
 delta = days_ran - start_date
 days_passed = delta.days
 
+# Method for setting up the Selenium Webdriver 
+def init_webdriver(): 
+    # Selenium Options, run headless (in background), ignore errors
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--ignore-certificate-errors")
+
+    # Chrome web driver set to Selenium Service
+    service = Service(r"C:\Users\btmun\OneDrive\Desktop\StockData\chromedriver-win64\chromedriver.exe")
+    driver = webdriver.Chrome(service=service, options=options)
+
+    return driver
+
 # Method to get the high/low price of the NVDU stock today
-def get_stock_range(stock_code): 
+def get_stock_range(driver, stock_code): 
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
     driver.get(url)
 
@@ -46,6 +52,9 @@ def get_stock_range(stock_code):
 
     stock_range = stock_range_element.text
     parts = stock_range.split(" - ")
+
+    # Cleanup driver
+    driver.quit()
 
     return parts
 
@@ -59,16 +68,22 @@ def write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high):
         writer = csv.writer(file)
         writer.writerows(data)
 
-# Get the NVDU and WBD prices
-nvdu_range = get_stock_range("NVDU")
-nvdu_low = float(nvdu_range[0])
-nvdu_high = float(nvdu_range[1])
-wbd_range = get_stock_range("WBD")
-wbd_low = float(wbd_range[0])
-wbd_high = float(wbd_range[1])
+def log_trends():
+    # TODO
+    return 
 
-# Finishing tasks
-print(nvdu_low, nvdu_high, wbd_low, wbd_high)
-time.sleep(30)
-write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high)
-driver.quit()
+# Mode 0 = Log daily stock high/low
+if (mode == 0):
+    # Get the NVDU and WBD prices
+    nvdu_range = get_stock_range("NVDU")
+    nvdu_low = float(nvdu_range[0])
+    nvdu_high = float(nvdu_range[1])
+    wbd_range = get_stock_range("WBD")
+    wbd_low = float(wbd_range[0])
+    wbd_high = float(wbd_range[1])
+
+    # Write to CSV and cleanup driver
+    write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high)
+# Mode 1 = Log trends in data overtime
+elif (mode == 1):
+    log_trends()
