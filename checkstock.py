@@ -52,15 +52,12 @@ def get_stock_range(driver, stock_code):
     stock_range = stock_range_element.text
     parts = stock_range.split(" - ")
 
-    # Cleanup driver
-    driver.quit()
-
     return parts
 
 # Method for writing report to the CSV 
 def write_csv(stock_code, low, high):
     data = [
-        [days_passed, stock_code, low, high]
+        [days_passed, high, low]
     ]
 
     file_path = fr"C:\Users\btmun\OneDrive\Desktop\StockData\{stock_code}_prices.csv"
@@ -82,6 +79,9 @@ def update_stock_price():
         low = float(curr_range[0])
         high = float(curr_range[1])
         write_csv(stocks[i], low, high)
+
+    # Cleanup driver
+    driver.quit()
         
 
 # Mode 0 = Log daily stock high/low
