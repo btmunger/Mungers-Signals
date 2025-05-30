@@ -17,8 +17,7 @@ if (len(sys.argv) > 1):
     mode = sys.argv[1]
 
 # Current shares of desired stocks
-NVDU_SHARES = 2.01
-WBD_SHARES = 5
+stocks = ["NVDU", "WBD"]
 
 # Calculate days since started recording data
 start_date = datetime.strptime("2025-05-19", "%Y-%m-%d")
@@ -74,19 +73,21 @@ def log_trends():
     # TODO
     return 
 
+# Method to call helper functions to scrape for stock prices
+def update_stock_price():
+    driver = init_webdriver()
+
+    for i in range(len(stocks)):
+        curr_range = get_stock_range(driver, stocks[i])
+        low = float(curr_range[0])
+        high = float(curr_range[1])
+        write_csv(stocks[i], low, high)
+        
+
 # Mode 0 = Log daily stock high/low
 if (mode == 0):
-    # Get the NVDU and WBD prices
-    nvdu_range = get_stock_range("NVDU")
-    nvdu_low = float(nvdu_range[0])
-    nvdu_high = float(nvdu_range[1])
-    # Write to CSV
-    write_csv("NVDU", nvdu_low, nvdu_high)
-    wbd_range = get_stock_range("WBD")
-    wbd_low = float(wbd_range[0])
-    wbd_high = float(wbd_range[1])
-    write_csv("WBD", wbd_low, wbd_high)
-
+    # Log the current prices
+    update_stock_price()
 # Mode 1 = Log trends in data overtime
 elif (mode == 1):
     log_trends()
