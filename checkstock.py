@@ -59,12 +59,14 @@ def get_stock_range(driver, stock_code):
     return parts
 
 # Method for writing report to the CSV 
-def write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high):
+def write_csv(stock_code, low, high):
     data = [
-        [days_passed, nvdu_high, nvdu_low, wbd_high, wbd_low]
+        [days_passed, stock_code, low, high]
     ]
 
-    with open(r"C:\Users\btmun\OneDrive\Desktop\StockData\stock_prices.csv", mode="a", newline="") as file:
+    file_path = fr"C:\Users\btmun\OneDrive\Desktop\StockData\{stock_code}_prices.csv"
+
+    with open(file_path, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(data)
 
@@ -78,12 +80,13 @@ if (mode == 0):
     nvdu_range = get_stock_range("NVDU")
     nvdu_low = float(nvdu_range[0])
     nvdu_high = float(nvdu_range[1])
+    # Write to CSV
+    write_csv("NVDU", nvdu_low, nvdu_high)
     wbd_range = get_stock_range("WBD")
     wbd_low = float(wbd_range[0])
     wbd_high = float(wbd_range[1])
+    write_csv("WBD", wbd_low, wbd_high)
 
-    # Write to CSV and cleanup driver
-    write_csv(nvdu_low, nvdu_high, wbd_low, wbd_high)
 # Mode 1 = Log trends in data overtime
 elif (mode == 1):
     log_trends()
