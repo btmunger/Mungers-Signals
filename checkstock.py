@@ -10,14 +10,16 @@ import time
 from datetime import datetime
 import csv
 import sys
+import os
+
+# Working directory for file paths
+current_directory = os.getcwd()
+stock_list_dir = fr"{current_directory}\stock_list.csv"
 
 # Set up mode from arguments if they exist, otherwise assume mode 0
-mode = 0
+mode = -1
 if (len(sys.argv) > 1):
     mode = sys.argv[1]
-
-# Current shares of desired stocks
-stocks = ["NVDU", "WBD"]
 
 # Calculate days since started recording data
 start_date = datetime.strptime("2025-05-19", "%Y-%m-%d")
@@ -35,7 +37,7 @@ def init_webdriver():
     options.add_argument("--ignore-certificate-errors")
 
     # Chrome web driver set to Selenium Service
-    service = Service(r"C:\Users\btmun\OneDrive\Desktop\StockData\chromedriver-win64\chromedriver.exe")
+    service = Service(r"{current_directory}\chromedriver-win64\chromedriver.exe")
     driver = webdriver.Chrome(service=service, options=options)
 
     return driver
@@ -60,7 +62,7 @@ def write_csv(stock_code, low, high):
         [days_passed, high, low]
     ]
 
-    file_path = fr"C:\Users\btmun\OneDrive\Desktop\StockData\{stock_code}_prices.csv"
+    file_path = fr"{current_directory}\{stock_code}_prices.csv"
 
     with open(file_path, mode="a", newline="") as file:
         writer = csv.writer(file)
@@ -70,8 +72,18 @@ def log_trends():
     # TODO
     return 
 
+# Set the stock list from the stocks listed in the CSV file
+def gather_stock_list():
+    with open(stock_list_dir, mode="r", newline="") as file:
+        reader = csv.reader(file)
+        stocks = next(reader)
+
+    return stocks
+
 # Method to call helper functions to scrape for stock prices
 def update_stock_price():
+    # Helper functions to gather the stocks list and driver object
+    stocks = gather_stock_list()
     driver = init_webdriver()
 
     for i in range(len(stocks)):
@@ -82,12 +94,99 @@ def update_stock_price():
 
     # Cleanup driver
     driver.quit()
-        
 
+def prompt_add_stock():
+    print("\n")
+    print("====================================================================")
+    print("         Enter the stock code you want to add to be tracked         ")
+    print("         For example, NVDA for Nividia, WBD for Warner Bros         ")
+    print("         Reference list: https://stockanalysis.com/stocks/          ")
+    print("                                                                    ")
+    print("              Enter 'y' to display the current list                 ")
+    print("====================================================================")
+
+    add_stock()
+    display_options()
+
+def display_tracked_stocks():
+    stocks = gather_stock_list()
+    index = 1
+
+    print("\nList of currently tracked stocks:")
+
+    for stock in stocks:
+        if index == len(stocks):
+            print(stock, end="\n\n")
+        else:
+            print(stock, end=",")
+            index += 1
+
+def add_stock():
+    # No stock code is just 'Y' ;)
+    stock_code = input("Enter the stock code or enter 'y': ")
+
+    if len(stock_code) < 1 or len(stock_code) > 5:
+        print("Invalid stock code length. Enter again\n")
+        add_stock()
+
+    if stock_code == 'y' or stock_code == 'Y':
+        display_tracked_stocks()
+    else:   
+        with open(stock_list_dir, mode="r", newline="") as file:
+            reader = csv.reader(file)
+            stocks = next(reader)
+        
+        stocks.append(stock_code.upper())
+
+        with open(stock_list_dir, mode="w") as file:
+            writer = csv.writer(file)
+            writer.writerow(stocks)
+
+        print("\n")
+    
+# Method to display options to the user 
+def display_options():
+    print("====================================================================")
+    print("                Welcome to Munger's Stock Tracker!                  ")
+    print("                  Written by Brian Munger, 2025                     ")     
+    print("                                                                    ")            
+    print("                Options (type the corresponding #):                 ")
+    print("                   1. Log daily stock high/low                      ")
+    print("                   2. Add new stock to track                        ")  
+    print("                   3. Depict trends in stock data                   ")                               
+    print("                   4. Exit                                          ")     
+    print("====================================================================")
+
+    # Gather user input for their mode choice
+    gather_mode_input()
+
+# Method to gather user input for the mode they want
+def gather_mode_input():
+    input_choice = input("Select an option 1-4: ")
+    if input_choice == "1":
+        print("Logging daily stock high/low...")
+        update_stock_price()
+    elif input_choice == "2":
+        prompt_add_stock()
+    elif input_choice == "3":
+        print("Not implemented yet\n") # IMPLEMENT 
+        gather_mode_input()
+    elif input_choice == "4":
+        print("Goodbye!\n")
+    # Invalid choice, prompt again
+    else:
+        print("Invalid option, please try again.\n")
+        gather_mode_input()
+
+print("")
+
+# Mode -1 = Executable mode, prompts options to user
+if (mode == -1):
+    display_options()
 # Mode 0 = Log daily stock high/low
-if (mode == 0):
-    # Log the current prices
+elif (mode == 0):
     update_stock_price()
 # Mode 1 = Log trends in data overtime
 elif (mode == 1):
+    # IMPLEMENT 
     log_trends()

@@ -1,1 +1,1 @@
-py ./checkstock.py
+py ./checkstock.py 0
