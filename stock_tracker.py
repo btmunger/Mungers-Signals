@@ -17,9 +17,9 @@ current_directory = os.getcwd()
 stock_list_dir = fr"{current_directory}\stock_list.csv"
 
 # Set up mode from arguments if they exist, otherwise assume mode 0
-mode = -1
+mode = 1
 if (len(sys.argv) > 1):
-    mode = sys.argv[1]
+    mode = 0
 
 # Calculate days since started recording data
 start_date = datetime.strptime("2025-05-19", "%Y-%m-%d")
@@ -44,13 +44,18 @@ def init_webdriver():
 
 # Method to get the high/low price of the NVDU stock today
 def get_stock_range(driver, stock_code): 
+    print(r"\nScraping Yahoo Finance for {stock_code} day high and low share cost...\n")
+
+    # Navigate to Yahoo Finance to get price
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
     driver.get(url)
 
+    # Select the element with the market day range text
     stock_range_element = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "fin-streamer[data-field='regularMarketDayRange']"))
     )
 
+    # Get the text from the element, split the text by the '-' character
     stock_range = stock_range_element.text
     parts = stock_range.split(" - ")
 
@@ -67,10 +72,6 @@ def write_csv(stock_code, low, high):
     with open(file_path, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(data)
-
-def log_trends():
-    # TODO
-    return 
 
 # Set the stock list from the stocks listed in the CSV file
 def gather_stock_list():
@@ -183,13 +184,9 @@ def gather_mode_input():
 
 print("")
 
-# Mode -1 = Executable mode, prompts options to user
-if (mode == -1):
+# Mode 1 = Executable mode, prompts options to user
+if (mode == 1):
     display_options()
 # Mode 0 = Log daily stock high/low
 elif (mode == 0):
     update_stock_price()
-# Mode 1 = Log trends in data overtime
-elif (mode == 1):
-    # IMPLEMENT 
-    log_trends()

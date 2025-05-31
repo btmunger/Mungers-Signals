@@ -1,1 +1,1 @@
-py ./checkstock.py 0
+py ./stock_tracker.py 0
