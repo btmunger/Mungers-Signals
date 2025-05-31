@@ -37,14 +37,15 @@ def init_webdriver():
     options.add_argument("--ignore-certificate-errors")
 
     # Chrome web driver set to Selenium Service
-    service = Service(r"{current_directory}\chromedriver-win64\chromedriver.exe")
+    path = fr"{current_directory}\chromedriver-win64\chromedriver.exe"
+    service = Service(path)
     driver = webdriver.Chrome(service=service, options=options)
 
     return driver
 
 # Method to get the high/low price of the NVDU stock today
 def get_stock_range(driver, stock_code): 
-    print(r"\nScraping Yahoo Finance for {stock_code} day high and low share cost...\n")
+    print("\n" + fr"Scraping Yahoo Finance for {stock_code} day high and low share cost..." + "\n")
 
     # Navigate to Yahoo Finance to get price
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
@@ -96,6 +97,10 @@ def update_stock_price():
 
     # Cleanup driver
     driver.quit()
+
+    print("\nDone!\n")
+    display_options()
+
 
 # Method to display stock adding options to the user
 def prompt_add_stock():
@@ -176,7 +181,7 @@ def gather_mode_input():
         print("Not implemented yet\n") # IMPLEMENT 
         gather_mode_input()
     elif input_choice == "4":
-        print("Goodbye!\n")
+        print("\nGoodbye!\n")
     # Invalid choice, prompt again
     else:
         print("Invalid option, please try again.\n")
