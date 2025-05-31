@@ -62,7 +62,7 @@ def write_csv(stock_code, low, high):
         [days_passed, high, low]
     ]
 
-    file_path = fr"{current_directory}\{stock_code}_prices.csv"
+    file_path = fr"{current_directory}\stock_reports\{stock_code}_prices.csv"
 
     with open(file_path, mode="a", newline="") as file:
         writer = csv.writer(file)
@@ -86,6 +86,7 @@ def update_stock_price():
     stocks = gather_stock_list()
     driver = init_webdriver()
 
+    # For each stock, find the daily range, and write to CSV
     for i in range(len(stocks)):
         curr_range = get_stock_range(driver, stocks[i])
         low = float(curr_range[0])
@@ -95,6 +96,7 @@ def update_stock_price():
     # Cleanup driver
     driver.quit()
 
+# Method to display stock adding options to the user
 def prompt_add_stock():
     print("\n")
     print("====================================================================")
@@ -108,12 +110,13 @@ def prompt_add_stock():
     add_stock()
     display_options()
 
+# Method for providing the user with a list of the currently tracked stocks
 def display_tracked_stocks():
     stocks = gather_stock_list()
     index = 1
 
+    # Print each stock to the console
     print("\nList of currently tracked stocks:")
-
     for stock in stocks:
         if index == len(stocks):
             print(stock, end="\n\n")
@@ -121,6 +124,7 @@ def display_tracked_stocks():
             print(stock, end=",")
             index += 1
 
+# Method for adding stocks to be tracked 
 def add_stock():
     # No stock code is just 'Y' ;)
     stock_code = input("Enter the stock code or enter 'y': ")
@@ -129,13 +133,12 @@ def add_stock():
         print("Invalid stock code length. Enter again\n")
         add_stock()
 
+    # Redirect to display stocks function if 'y' is entered
     if stock_code == 'y' or stock_code == 'Y':
         display_tracked_stocks()
     else:   
-        with open(stock_list_dir, mode="r", newline="") as file:
-            reader = csv.reader(file)
-            stocks = next(reader)
-        
+        # Append the stock code to the list, then write to CSV
+        stocks = gather_stock_list()
         stocks.append(stock_code.upper())
 
         with open(stock_list_dir, mode="w") as file:
