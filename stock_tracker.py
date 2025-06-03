@@ -110,7 +110,7 @@ def prompt_add_stock():
     print("         For example, NVDA for Nividia, WBD for Warner Bros         ")
     print("         Reference list: https://stockanalysis.com/stocks/          ")
     print("                                                                    ")
-    print("              Enter 'y' to display the current list                 ")
+    print("              Enter '1' to display the current list                 ")
     print("====================================================================")
 
     add_stock()
@@ -133,14 +133,14 @@ def display_tracked_stocks():
 # Method for adding stocks to be tracked 
 def add_stock():
     # No stock code is just 'Y' ;)
-    stock_code = input("Enter the stock code or enter 'y': ")
+    stock_code = input("Enter the stock code or enter '1': ")
 
     if len(stock_code) < 1 or len(stock_code) > 5:
         print("Invalid stock code length. Enter again\n")
         add_stock()
 
     # Redirect to display stocks function if 'y' is entered
-    if stock_code == 'y' or stock_code == 'Y':
+    if stock_code == '1':
         display_tracked_stocks()
     else:   
         # Append the stock code to the list, then write to CSV
@@ -151,6 +151,7 @@ def add_stock():
             writer = csv.writer(file)
             writer.writerow(stocks)
 
+        print("\n"  + fr"Successfully added '{stock_code.upper()}' stock to list!")
         print("\n")
     
 # Method to display options to the user 
@@ -161,7 +162,7 @@ def display_options():
     print("                                                                    ")            
     print("                Options (type the corresponding #):                 ")
     print("                   1. Log daily stock high/low                      ")
-    print("                   2. Add new stock to track                        ")  
+    print("                   2. Add to / view tracked stocks                  ")  
     print("                   3. Depict trends in stock data                   ")                               
     print("                   4. Exit                                          ")     
     print("====================================================================")
