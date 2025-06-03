@@ -35,6 +35,7 @@ def init_webdriver():
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--ignore-certificate-errors")
+    options.add_argument('--log-level=3') 
 
     # Chrome web driver set to Selenium Service
     path = fr"{current_directory}\chromedriver-win64\chromedriver.exe"
@@ -44,7 +45,7 @@ def init_webdriver():
     return driver
 
 # Method to get the high/low price of the NVDU stock today
-def get_stock_range(driver, stock_code): 
+def get_stock_data(driver, stock_code): 
     print("\n" + fr"Scraping Yahoo Finance for {stock_code} day high and low share cost..." + "\n")
 
     # Navigate to Yahoo Finance to get price
@@ -59,13 +60,31 @@ def get_stock_range(driver, stock_code):
     # Get the text from the element, split the text by the '-' character
     stock_range = stock_range_element.text
     parts = stock_range.split(" - ")
+    low = float(parts[0])
+    high = float(parts[1])
 
-    return parts
+    # Select the element with the closing value
+    closing_element = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "fin-streamer[data-testid='qsp-price']"))
+    )
+    closing = float(closing_element.text)
+
+    # Select the element with the market volume
+    volume_element = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "fin-streamer[data-field='regularMarketVolume']"))
+    )
+    volume_text_comma = volume_element.text
+    volume = float(volume_text_comma.replace(",", ""))
+
+    # Return array with today's stock data
+    todays_stock_data = [high, low, closing, volume]
+    return todays_stock_data
 
 # Method for writing report to the CSV 
-def write_csv(stock_code, low, high):
+def write_csv(stock_code, todays_stock_data):
     data = [
-        [days_passed, high, low]
+        [days_passed, todays_stock_data[0], todays_stock_data[1], 
+         todays_stock_data[2], todays_stock_data[3]]
     ]
 
     file_path = fr"{current_directory}\stock_reports\{stock_code}_prices.csv"
@@ -89,17 +108,20 @@ def update_stock_price():
     driver = init_webdriver()
 
     # For each stock, find the daily range, and write to CSV
-    for i in range(len(stocks)):
-        curr_range = get_stock_range(driver, stocks[i])
-        low = float(curr_range[0])
-        high = float(curr_range[1])
-        write_csv(stocks[i], low, high)
+    #for i in range(len(stocks)):
+        #todays_stock_data = get_stock_data(driver, stocks[i])
+        #write_csv(stocks[i], todays_stock_data)
 
+    todays_stock_data = get_stock_data(driver, "NVDU")
+    write_csv("NVDU", todays_stock_data)
+    
     # Cleanup driver
     driver.quit()
 
     print("\nDone!\n")
-    display_options()
+    # If not in regular schedule mode, display the options to user
+    if mode != 0:
+        display_options()
 
 
 # Method to display stock adding options to the user
@@ -174,7 +196,7 @@ def display_options():
 def gather_mode_input():
     input_choice = input("Select an option 1-4: ")
     if input_choice == "1":
-        print("Logging daily stock high/low...")
+        print("\nLogging daily stock high/low...")
         update_stock_price()
     elif input_choice == "2":
         prompt_add_stock()
