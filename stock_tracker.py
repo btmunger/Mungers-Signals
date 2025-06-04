@@ -22,7 +22,7 @@ if (len(sys.argv) > 1):
     mode = 0
 
 # Calculate days since started recording data
-start_date = datetime.strptime("2025-05-19", "%Y-%m-%d")
+start_date = datetime.strptime("2025-06-02", "%Y-%m-%d")
 today = datetime.today()
 days_ran = datetime.strptime(today.strftime("%Y-%m-%d"), "%Y-%m-%d")
 delta = days_ran - start_date

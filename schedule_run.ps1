@@ -1,1 +1,0 @@
-py ./stock_tracker.py 0
