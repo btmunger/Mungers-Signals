@@ -111,9 +111,6 @@ def update_stock_price():
     for i in range(len(stocks)):
         todays_stock_data = get_stock_data(driver, stocks[i])
         write_csv(stocks[i], todays_stock_data)
-
-    todays_stock_data = get_stock_data(driver, "NVDU")
-    write_csv("NVDU", todays_stock_data)
     
     # Cleanup driver
     driver.quit()
