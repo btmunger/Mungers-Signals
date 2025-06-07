@@ -6,15 +6,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 from datetime import datetime
 import csv
 import sys
 import os
 
 # Working directory for file paths
-current_directory = os.getcwd()
-stock_list_dir = fr"{current_directory}\stock_list.csv"
+base_dir = os.path.dirname(os.path.abspath(__file__))
+stock_list_dir = os.path.join(base_dir, "stock_list.csv")
 
 # Set up mode from arguments if they exist, otherwise assume mode 0
 mode = 1
@@ -38,7 +37,7 @@ def init_webdriver():
     options.add_argument('--log-level=3') 
 
     # Chrome web driver set to Selenium Service
-    path = fr"{current_directory}\chromedriver-win64\chromedriver.exe"
+    path = fr"{base_dir}\chromedriver-win64\chromedriver.exe"
     service = Service(path)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -87,7 +86,7 @@ def write_csv(stock_code, todays_stock_data):
          todays_stock_data[2], todays_stock_data[3]]
     ]
 
-    file_path = fr"{current_directory}\stock_reports\{stock_code}_prices.csv"
+    file_path = fr"{base_dir}\stock_reports\{stock_code}_prices.csv"
 
     with open(file_path, mode="a", newline="") as file:
         writer = csv.writer(file)
