@@ -13,25 +13,12 @@ import os
 
 # Working directory for file paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
-stock_list_dir = os.path.join(base_dir, "stock_list.csv")
-
-# Set up mode from arguments if they exist, otherwise assume mode 0
-mode = 1
-if (len(sys.argv) > 1):
-    mode = 0
-
-# Calculate days since started recording data
-start_date = datetime.strptime("2025-06-02", "%Y-%m-%d")
-today = datetime.today()
-days_ran = datetime.strptime(today.strftime("%Y-%m-%d"), "%Y-%m-%d")
-delta = days_ran - start_date
-days_passed = delta.days
 
 # Method for setting up the Selenium Webdriver 
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument('--log-level=3') 
@@ -43,146 +30,85 @@ def init_webdriver():
 
     return driver
 
-# Method to get the high/low price of the NVDU stock today
-def get_stock_data(driver, stock_code): 
-    print("\n" + fr"Scraping Yahoo Finance for {stock_code} day high and low share cost..." + "\n")
+# Method for grabbing the data entries table HTML element
+def get_Yahoo_data_entries(driver):
+    # "./*" = get the child element(s)
+    table = driver.find_element(By.CSS_SELECTOR, "[data-testid='history-table']")
+    table_children = table.find_elements(By.XPATH,"./*")
+    table_container = table_children[2].find_element(By.XPATH,"./*")
 
-    # Navigate to Yahoo Finance to get price
-    url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
+    data_entries_container = table_container.find_elements(By.XPATH,"./*")
+    data_entries = data_entries_container[1].find_elements(By.XPATH,"./*")
+
+    return data_entries
+
+# Method to get stock data over the past month for close, high, low, 
+def get_stock_data(stock_code):
+    # Initalize driver, navigate to Yahoo Finance to get price data
+    driver = init_webdriver()
+    print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data..." + "\n")
+    url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/history/"
     driver.get(url)
 
-    # Select the element with the market day range text
-    stock_range_element = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "fin-streamer[data-field='regularMarketDayRange']"))
-    )
+    # Declare variables
+    week_open = []
+    week_high = []
+    week_low = []
+    week_close = []
+    week_volume = []
+    month_open = []
+    month_high = []
+    month_low = []
+    month_close = []
+    month_volume = []
 
-    # Get the text from the element, split the text by the '-' character
-    stock_range = stock_range_element.text
-    parts = stock_range.split(" - ")
-    low = float(parts[0])
-    high = float(parts[1])
+    # Use helper function to get the table 
+    data_entries = get_Yahoo_data_entries(driver)
 
-    # Select the element with the closing value
-    closing_element = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "fin-streamer[data-testid='qsp-price']"))
-    )
-    closing = float(closing_element.text)
+    # Read stock data entries from the last month 
+    for index in range(20):
+        curr_entry = data_entries[index].find_elements(By.XPATH, "./*") 
+        # For last week statistics
+        if index < 5:
+            week_open.append(curr_entry[1].text)
+            week_high.append(curr_entry[2].text)
+            week_low.append(curr_entry[3].text)
+            week_close.append(curr_entry[4].text)
+            week_volume.append(curr_entry[6].text)
 
-    # Select the element with the market volume
-    volume_element = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "fin-streamer[data-field='regularMarketVolume']"))
-    )
-    volume_text_comma = volume_element.text
-    volume = float(volume_text_comma.replace(",", ""))
+        # For last month statistics
+        month_open.append(curr_entry[1].text)
+        month_high.append(curr_entry[2].text)
+        month_low.append(curr_entry[3].text)
+        month_close.append(curr_entry[4].text)
+        month_volume.append(curr_entry[6].text)
 
-    # Return array with today's stock data
-    todays_stock_data = [high, low, closing, volume]
-    return todays_stock_data
+    # Organize data, return stats report
+    stock_data = [week_open, week_high, week_low, week_close, week_volume,
+                  month_open, month_high, month_low, month_close, month_volume]
+    return stock_data
 
-# Method for writing report to the CSV 
-def write_csv(stock_code, todays_stock_data):
-    data = [
-        [days_passed, todays_stock_data[0], todays_stock_data[1], 
-         todays_stock_data[2], todays_stock_data[3]]
-    ]
+# Method for getting the desired stock code to check from user
+def get_stock_code():
+    stock_code = input("\nEnter the stock code you would like analyzed: ")
 
-    file_path = fr"{base_dir}\stock_reports\{stock_code}_prices.csv"
-
-    with open(file_path, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(data)
-
-# Set the stock list from the stocks listed in the CSV file
-def gather_stock_list():
-    with open(stock_list_dir, mode="r", newline="") as file:
-        reader = csv.reader(file)
-        stocks = next(reader)
-
-    return stocks
-
-# Method to call helper functions to scrape for stock prices
-def update_stock_price():
-    # Helper functions to gather the stocks list and driver object
-    stocks = gather_stock_list()
-    driver = init_webdriver()
-
-    # For each stock, find the daily range, and write to CSV
-    for i in range(len(stocks)):
-        todays_stock_data = get_stock_data(driver, stocks[i])
-        write_csv(stocks[i], todays_stock_data)
-    
-    # Cleanup driver
-    driver.quit()
-
-    print("\nDone!\n")
-    # If not in regular schedule mode, display the options to user
-    if mode != 0:
-        display_options()
-
-
-# Method to display stock adding options to the user
-def prompt_add_stock():
-    print("\n")
-    print("====================================================================")
-    print("         Enter the stock code you want to add to be tracked         ")
-    print("         For example, NVDA for Nividia, WBD for Warner Bros         ")
-    print("         Reference list: https://stockanalysis.com/stocks/          ")
-    print("                                                                    ")
-    print("              Enter '1' to display the current list                 ")
-    print("====================================================================")
-
-    add_stock()
-    display_options()
-
-# Method for providing the user with a list of the currently tracked stocks
-def display_tracked_stocks():
-    stocks = gather_stock_list()
-    index = 1
-
-    # Print each stock to the console
-    print("\nList of currently tracked stocks:")
-    for stock in stocks:
-        if index == len(stocks):
-            print(stock, end="\n\n")
-        else:
-            print(stock, end=",")
-            index += 1
-
-# Method for adding stocks to be tracked 
-def add_stock():
-    # No stock code is just 'Y' ;)
-    stock_code = input("Enter the stock code or enter '1': ")
-
+    # Ensure code with correct length is entered
     if len(stock_code) < 1 or len(stock_code) > 5:
-        print("Invalid stock code length. Enter again\n")
-        add_stock()
-
-    # Redirect to display stocks function if 'y' is entered
-    if stock_code == '1':
-        display_tracked_stocks()
-    else:   
-        # Append the stock code to the list, then write to CSV
-        stocks = gather_stock_list()
-        stocks.append(stock_code.upper())
-
-        with open(stock_list_dir, mode="w") as file:
-            writer = csv.writer(file)
-            writer.writerow(stocks)
-
-        print("\n"  + fr"Successfully added '{stock_code.upper()}' stock to list!")
-        print("\n")
+        print("\nInvalid stock code entered. Please enter a valid stock code.")
+        get_stock_code()
+    else:
+        return stock_code
     
 # Method to display options to the user 
 def display_options():
     print("====================================================================")
-    print("                Welcome to Munger's Stock Tracker!                  ")
+    print("                Welcome to Munger's Stock Advisor!                  ")
     print("                  Written by Brian Munger, 2025                     ")     
     print("                                                                    ")            
     print("                Options (type the corresponding #):                 ")
-    print("                   1. Log daily stock high/low                      ")
-    print("                   2. Add to / view tracked stocks                  ")  
-    print("                   3. Depict trends in stock data                   ")                               
-    print("                   4. Exit                                          ")     
+    print("                   1. AI Buy / Sell / Hold                          ")
+    print("                   2. Reflect On Past Decisions                     ")                               
+    print("                   3. Exit                                          ")     
     print("====================================================================")
 
     # Gather user input for their mode choice
@@ -190,27 +116,18 @@ def display_options():
 
 # Method to gather user input for the mode they want
 def gather_mode_input():
-    input_choice = input("Select an option 1-4: ")
+    input_choice = input("Select an option 1-3: ")
     if input_choice == "1":
-        print("\nLogging daily stock high/low...")
-        update_stock_price()
+        stock_code = get_stock_code()
+        stock_data = get_stock_data(stock_code)
     elif input_choice == "2":
-        prompt_add_stock()
+        get_stock_data()
     elif input_choice == "3":
-        print("Not implemented yet\n") # IMPLEMENT 
-        gather_mode_input()
-    elif input_choice == "4":
         print("\nGoodbye!\n")
-    # Invalid choice, prompt again
     else:
+        # Invalid choice, prompt again
         print("Invalid option, please try again.\n")
         gather_mode_input()
 
 print("")
-
-# Mode 1 = Executable mode, prompts options to user
-if (mode == 1):
-    display_options()
-# Mode 0 = Log daily stock high/low
-elif (mode == 0):
-    update_stock_price()
+display_options()
