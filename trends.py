@@ -6,92 +6,48 @@ import numpy as np
 # Working directory for file paths
 current_directory = os.getcwd()
 
-# Method to get the slope of the change in prices 
-def get_trend_slope(data):
-    x = np.arange(len(data))
-    y = np.arrange(data)
+# Method to get the average percentage change over a data set
+def get_percent_change(data):
+    percent_changes_sum = 0
+    
+    # Find the perecent change between each data point
+    for index in range(1, len(data)):
+        prev = data[index - 1]
+        curr = data[index]
+        change = (curr - prev) / prev * 100
+        percent_changes_sum += change
 
-    slope, intercept = np.polyfit(x, y, 1)
-
-    return slope
-
-# Method to get the total logs in a stock report CSV file
-def get_rows_len(file_path):
-    with open(file_path, 'r', newline='') as file:
-        next(file)  # Skip header
-        line_count = sum(1 for _ in file)
-
-    return line_count
-
-# Method for organizing statisitcs regarding a certain stock over the last week & month
-def get_stock_stats(stock_code): 
-    file_path = fr"{current_directory}\stock_reports\{stock_code}_prices.csv"
-
-    # Trend report variables declared 
-    week_high = 0
-    week_low = 0
-    month_high = 0
-    month_low = 0
-    week_closing = 0
-    month_closing = 0
-    week_volume = 0
-    month_volume = 0
-
-    # Open the corresponding file, read through the logs
-    with open(file_path, mode="r") as file:
-        reader = csv.reader(file)
-
-        logs = file.readlines()
-        logs_count = -1
-        # Track the current log
-        index = 0
-        for log in reversed(logs):
-            # As long as a month of logs has not been covered yet...
-            if(index < 31):
-                # Set the log count variable
-                if logs_count == -1:
-                    logs_count = get_rows_len(logs)
-
-                # Trends over the past week
-                if logs_count <= 7 and logs_count > 0:
-                    week_high += logs[1]
-                    week_low += logs[2]
-                    week_closing += logs[3]
-                    week_volume += logs[4]
-                # Trends over the past month
-                if logs_count >= 30:
-                    month_high += logs[1]
-                    month_low += logs[2]
-                    month_closing += logs[3]
-                    month_volume += logs[4]
-            else:
-                break
-
-    # Set up trend report variable to be used to print / write report
-    stock_statistics = [get_trend_slope(week_high), get_trend_slope(week_low), get_trend_slope(week_closing), get_trend_slope(week_volume),
-                    get_trend_slope(month_high), get_trend_slope(month_low), get_trend_slope(month_closing), get_trend_slope(month_volume)]
-    return stock_statistics
+    return percent_changes_sum / len(data)
 
 # Method for calculating trends based on the organized statistics 
 def calculate_trends(stock_statistics):
+    # Stats array format:
+    # stock_data = [week_open, week_high, week_low, week_close, week_volume,       0-4
+    #              month_open, month_high, month_low, month_close, month_volume]   5-9
 
-def write_trend_CSV(trend_report):
-    #implement
+    pcnt_chng_close_wk = get_percent_change(stock_statistics[3])
+    pcnt_chng_close_mnth = get_percent_change(stock_statistics[8])
+    pcnt_chng_open_wk = get_percent_change(stock_statistics[0])
+    pcnt_chng_open_mnth = get_percent_change(stock_statistics[5])
+    pcnt_chng_volume_wk = get_percent_change(stock_statistics[4])
+    pcnt_chng_volume_mnth = get_percent_change(stock_statistics[9])
+
+    trends_report = [pcnt_chng_close_wk, pcnt_chng_close_mnth, pcnt_chng_open_wk, pcnt_chng_open_mnth,
+                     pcnt_chng_volume_wk, pcnt_chng_volume_mnth]
+    return trends_report
+
+# Method for writing trend reports to a JSON file
+def write_trend_json(trend_report):
     return
    
 # Main function for calculating trends. Calls the appropriate helper functions, prints to the console the report
 # Other .py files that need to calculate the trends of a stock should call this function 
-def get_trend_report(stock_code):
-    stock_statistics = get_stock_stats(stock_code)
+def get_trend_report(stock_code, stock_statistics):
     trend_report = calculate_trends(stock_statistics)
-    write_trend_CSV(trend_report)
+    write_trend_json(trend_report)
 
     print("====================================================================")
     print(fr"                      Trend report for '{stock_code}'             ")
     print("                                                                    ")
     print("             Trends over the last week | last month:                ")    
-    print(fr"                     Stock high:    {trend_report[0]} | {trend_report[4]}  ")
-    print(fr"                     Stock low:     {trend_report[1]} | {trend_report[5]}  ")
-    print(fr"                     Stock closing: {trend_report[2]} | {trend_report[6]}  ")
-    print(fr"                     Stock closing: {trend_report[3]} | {trend_report[7]}  ")
     print("====================================================================")

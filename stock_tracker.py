@@ -7,8 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
-import csv
-import sys
+from trends import get_trend_report
 import os
 
 # Working directory for file paths
@@ -120,6 +119,7 @@ def gather_mode_input():
     if input_choice == "1":
         stock_code = get_stock_code()
         stock_data = get_stock_data(stock_code)
+        get_trend_report(stock_code, stock_data)
     elif input_choice == "2":
         get_stock_data()
     elif input_choice == "3":
