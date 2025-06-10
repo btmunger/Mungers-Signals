@@ -23,8 +23,8 @@ def get_rows_len(file_path):
 
     return line_count
 
-# Method for calculating the trends using the above helper functions
-def calculate_trends(stock_code): 
+# Method for organizing statisitcs regarding a certain stock over the last week & month
+def get_stock_stats(stock_code): 
     file_path = fr"{current_directory}\stock_reports\{stock_code}_prices.csv"
 
     # Trend report variables declared 
@@ -68,9 +68,12 @@ def calculate_trends(stock_code):
                 break
 
     # Set up trend report variable to be used to print / write report
-    trend_report = [get_trend_slope(week_high), get_trend_slope(week_low), get_trend_slope(week_closing), get_trend_slope(week_volume),
+    stock_statistics = [get_trend_slope(week_high), get_trend_slope(week_low), get_trend_slope(week_closing), get_trend_slope(week_volume),
                     get_trend_slope(month_high), get_trend_slope(month_low), get_trend_slope(month_closing), get_trend_slope(month_volume)]
-    return trend_report
+    return stock_statistics
+
+# Method for calculating trends based on the organized statistics 
+def calculate_trends(stock_statistics):
 
 def write_trend_CSV(trend_report):
     #implement
@@ -79,7 +82,8 @@ def write_trend_CSV(trend_report):
 # Main function for calculating trends. Calls the appropriate helper functions, prints to the console the report
 # Other .py files that need to calculate the trends of a stock should call this function 
 def get_trend_report(stock_code):
-    trend_report = calculate_trends(stock_code)
+    stock_statistics = get_stock_stats(stock_code)
+    trend_report = calculate_trends(stock_statistics)
     write_trend_CSV(trend_report)
 
     print("====================================================================")
