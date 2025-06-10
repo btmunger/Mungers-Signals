@@ -1,5 +1,5 @@
-import csv
-import sys
+import json
+from datetime import datetime
 import os 
 import numpy as np
 import statistics
@@ -97,16 +97,67 @@ def calculate_trends(stock_statistics):
     trends_report = [pcnt_chng_arr, range_arr, moving_avg_arr, std_array]
     return trends_report
 
+# Method for formatting the trends entry 
+def get_entry(stock_code, trend_report):
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "stock_code": stock_code,
+        "avg_percent_changes": {
+            "close_past_week": trend_report[0][0],
+            "close_past_month": trend_report[0][1],
+            "open_past_week": trend_report[0][2],
+            "open_past_month": trend_report[0][3],
+            "volume_past_week": trend_report[0][4],
+            "volume_past_month": trend_report[0][5]
+        },
+        "ranges": {
+            "open_close_range_week": trend_report[1][0],
+            "open_close_range_month": trend_report[1][1],
+            "high_low_range_week": trend_report[1][2],
+            "high_low_range_month": trend_report[1][3]
+        },
+        "moving_avgs": {
+            "sma_week": trend_report[2][0],
+            "sma_month": trend_report[2][1],
+            "sma_difference": trend_report[2][2],
+            "sma_ratio": trend_report[2][3]
+        },
+        "standard_dev_calcs": {
+            "closing_std_week": trend_report[3][0],
+            "closing_std_month": trend_report[3][1],
+            "zscore_week": trend_report[3][2],
+            "zscore_month": trend_report[3][3] 
+        }
+    }
+
+    return entry
+
 # Method for writing trend reports to a JSON file
-def write_trend_json(trend_report):
-    return
+def write_trend_json(stock_code, trend_report):
+    new_entry = get_entry(stock_code, trend_report)
+
+    json_name = "/trend_reports/{stock_code}_reports.json"
+    entries = []
+    with open(json_name, "r") as file:
+        entries = json.load(file)
+
+    entries.append(new_entry)
+
+    with open(json_name, "w") as file:
+        json.dump(entries, file, indent=4)
+
 
 # Method for writing trend reports to the terminal (only the percentage increases for reference)
 def write_terminal_out(stock_code, stats):
     print("====================================================================")
     print(fr"                      Trend report for '{stock_code}'             ")
     print("                                                                    ")
-    print("             Trends over the last week | last month:                ")    
+    print("             Trends over the last week | last month:                ") 
+    print(fr"                 Closing:      {stats[0][0]}|{stats[0][1]}")
+    print(fr"                 Open:           {stats[0][2]}|{stats[0][3]}") 
+    print(fr"                 Volume:         {stats[0][4]}|{stats[0][5]}")
+    print("")
+    print(fr"    Additional trends / statistics written to /trend_reports/{stock_code}.json") 
     print("====================================================================")
    
 # Main function for calculating trends. Calls the appropriate helper functions, prints to the console the report
