@@ -150,6 +150,10 @@ def write_trend_json(stock_code, trend_report):
     new_entry = get_entry(stock_code, trend_report)
     json_name = fr"trend_reports/{stock_code}_reports.json"
 
+    # If the trends report directory does not exist, create it
+    if not os.path.exists("trend_reports"):
+        os.makedirs("trend_reports")
+
     # If the trends report file does not exist yet for this stock code, create a new 
     # json file
     if not os.path.exists(json_name):
@@ -181,9 +185,9 @@ def write_terminal_out(stock_code, trend_report):
     print(fr"                      Trend report for '{stock_code}'             ")
     print("                                                                    ")
     print("              Trends over the last week | last month:               ") 
-    print(fr"                   Closing:       {stats[0]}% | {stats[1]}%       ")
-    print(fr"                   Open:          {stats[2]}% | {stats[3]}%       ") 
-    print(fr"                   Volume:        {stats[4]}% | {stats[5]}%       ")
+    print(fr"                   Closing:      {stats[0]}% | {stats[1]}%       ")
+    print(fr"                   Open:         {stats[2]}% | {stats[3]}%       ") 
+    print(fr"                   Volume:       {stats[4]}% | {stats[5]}%       ")
     print("                                                                    ")
     print(fr"       Additional trends written to trend_reports/{stock_code}.json") 
     print("====================================================================")
