@@ -13,16 +13,26 @@ def get_percent_change(data):
     
     # Find the perecent change between each data point
     for index in range(1, len(data)):
-        prev = data[index - 1]
-        curr = data[index]
+        prev = float(data[index - 1].replace(",", ""))
+        curr = float(data[index].replace(",", ""))
         change = (curr - prev) / prev * 100
         percent_changes_sum += change
 
-    return percent_changes_sum / len(data)
+    pct_chng = round(percent_changes_sum / (len(data) - 1), 2)
+    return pct_chng
 
 # Method to find the range between a open/close or high/low
 def get_range(x, y, open):
-    return (x - y) / open * 100
+    range_rounded = round((float(x) - float(y)) / float(open) * 100, 2)
+    return range_rounded
+
+# Helper function for getting the window avg for moving average calculation
+def get_window_average(data, window, index):
+    window_sum = 0
+    for i in range(index + 1 - window, index + 1):
+        window_sum += float(data[i])
+
+    return window_sum / window
 
 # Method for calculating the moving average of a particular stock
 # Logic credit: https://www.geeksforgeeks.org/how-to-calculate-moving-averages-in-python/
@@ -33,10 +43,11 @@ def get_moving_average(data, window):
         if index + 1 < window:
             moving_averages.append(None)
         else:
-            window_average = sum(data[index + 1 - window : index + 1])
+            window_average = get_window_average(data, window, index)
             moving_averages.append(window_average)
     
-    return moving_averages
+    ma_round = round(moving_averages[-1], 2)
+    return ma_round
 
 # Method for calculating the standard deviation of certain arrays
 # Logic credit: https://www.geeksforgeeks.org/how-to-calculate-moving-averages-in-python/
@@ -46,15 +57,17 @@ def get_std(data, window):
         if index + 1 < window:
             stds.append(None)
         else:
-            window_slice = data[index + 1 - window : index + 1]
+            window_slice = [float(x) for x in data[index + 1 - window : index + 1]]
             std = statistics.stdev(window_slice)
             stds.append(std)
 
-    return stds
+    std_round = round(stds[-1], 2)
+    return std_round
 
 # Method for calculating the zscores
 def get_zscore(price, ma, std):
-    return (price - ma) / std
+    z_score = round((float(price) - float(ma)) / float(std), 2)
+    return z_score
 
 # Method for calculating trends based on the organized statistics 
 def calculate_trends(stock_statistics):
@@ -84,18 +97,18 @@ def calculate_trends(stock_statistics):
     # Moving average calculations (using closing prices)
     ma_wk = get_moving_average(stock_statistics[3], 5)
     ma_mnth = get_moving_average(stock_statistics[8], 20)
-    moving_avg_arr = [ma_wk, ma_mnth, ma_wk - ma_mnth, ma_wk / ma_mnth]
+    moving_avg_arr = [ma_wk, ma_mnth, round(ma_wk - ma_mnth, 2), round(ma_wk / ma_mnth, 2)]
 
     # STD calculations
     cls_std_wk = get_std(stock_statistics[3], 5)
     cls_std_mnth = get_std(stock_statistics[8], 20)
-    zscore_wk = get_zscore(stock_statistics[3][-1], ma_wk, cls_std_wk[-1])
-    zscore_mnth = get_zscore(stock_statistics[8][-1], ma_mnth, cls_std_mnth[-1])
+    zscore_wk = get_zscore(stock_statistics[3][-1], ma_wk, cls_std_wk)
+    zscore_mnth = get_zscore(stock_statistics[8][-1], ma_mnth, cls_std_mnth)
     std_array = [cls_std_wk, cls_std_mnth, zscore_wk, zscore_mnth]
 
     # Format and return the trends report
-    trends_report = [pcnt_chng_arr, range_arr, moving_avg_arr, std_array]
-    return trends_report
+    trend_report = [pcnt_chng_arr, range_arr, moving_avg_arr, std_array]
+    return trend_report
 
 # Method for formatting the trends entry 
 def get_entry(stock_code, trend_report):
@@ -135,8 +148,14 @@ def get_entry(stock_code, trend_report):
 # Method for writing trend reports to a JSON file
 def write_trend_json(stock_code, trend_report):
     new_entry = get_entry(stock_code, trend_report)
+    json_name = fr"trend_reports/{stock_code}_reports.json"
 
-    json_name = "/trend_reports/{stock_code}_reports.json"
+    # If the trends report file does not exist yet for this stock code, create a new 
+    # json file
+    if not os.path.exists(json_name):
+        with open(json_name, "w") as file:
+            json.dump([], file)
+
     entries = []
     with open(json_name, "r") as file:
         entries = json.load(file)
@@ -146,18 +165,27 @@ def write_trend_json(stock_code, trend_report):
     with open(json_name, "w") as file:
         json.dump(entries, file, indent=4)
 
+def add_symbol(trend_report):
+    for index in range(6):
+        if trend_report[index] > 0:
+            trend_report[index] = fr"+{trend_report[index]}"
+
+    return trend_report
+            
 
 # Method for writing trend reports to the terminal (only the percentage increases for reference)
-def write_terminal_out(stock_code, stats):
+def write_terminal_out(stock_code, trend_report):
+    stats = add_symbol(trend_report)
+
     print("====================================================================")
     print(fr"                      Trend report for '{stock_code}'             ")
     print("                                                                    ")
-    print("             Trends over the last week | last month:                ") 
-    print(fr"                 Closing:      {stats[0][0]}|{stats[0][1]}")
-    print(fr"                 Open:           {stats[0][2]}|{stats[0][3]}") 
-    print(fr"                 Volume:         {stats[0][4]}|{stats[0][5]}")
-    print("")
-    print(fr"    Additional trends / statistics written to /trend_reports/{stock_code}.json") 
+    print("              Trends over the last week | last month:               ") 
+    print(fr"                   Closing:       {stats[0]}% | {stats[1]}%       ")
+    print(fr"                   Open:          {stats[2]}% | {stats[3]}%       ") 
+    print(fr"                   Volume:        {stats[4]}% | {stats[5]}%       ")
+    print("                                                                    ")
+    print(fr"       Additional trends written to trend_reports/{stock_code}.json") 
     print("====================================================================")
    
 # Main function for calculating trends. Calls the appropriate helper functions, prints to the console the report

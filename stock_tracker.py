@@ -17,7 +17,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    #options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument('--log-level=3') 
