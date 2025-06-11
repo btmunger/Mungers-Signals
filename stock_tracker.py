@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 from trends import get_trend_report
+from ai_analysis import get_AI_advice
 import os
 
 # Working directory for file paths
