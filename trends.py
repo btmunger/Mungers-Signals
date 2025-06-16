@@ -73,7 +73,8 @@ def get_zscore(price, ma, std):
 def calculate_trends(stock_statistics):
     # Stats array format:
     # stock_statistics = [week_open, week_high, week_low, week_close, week_volume,       0-4
-    #              month_open, month_high, month_low, month_close, month_volume]   5-9
+    #              month_open, month_high, month_low, month_close, month_volume,         5-9
+    #              stock_news]                                                           10
 
     # Percent change calculations
     pcnt_chng_close_wk = get_percent_change(stock_statistics[3])
@@ -107,7 +108,7 @@ def calculate_trends(stock_statistics):
     std_array = [cls_std_wk, cls_std_mnth, zscore_wk, zscore_mnth]
 
     # Format and return the trends report
-    trend_report = [pcnt_chng_arr, range_arr, moving_avg_arr, std_array]
+    trend_report = [pcnt_chng_arr, range_arr, moving_avg_arr, std_array, stock_statistics[10]]  # stock_statistics[10] = stock news array
     return trend_report
 
 # Method for formatting the trends entry 
@@ -140,6 +141,10 @@ def get_entry(stock_code, trend_report):
             "closing_std_month": trend_report[3][1],
             "zscore_week": trend_report[3][2],
             "zscore_month": trend_report[3][3] 
+        },
+        "stock_news": {
+            "headline_1": trend_report[4][0],
+            "headline_2": trend_report[4][1]
         }
     }
 
@@ -169,6 +174,7 @@ def write_trend_json(stock_code, trend_report):
     with open(json_name, "w") as file:
         json.dump(entries, file, indent=4)
 
+# Method for adding a '+' symbol if there is an increasing trend
 def add_symbol(trend_report):
     for index in range(6):
         if trend_report[index] > 0:
@@ -176,7 +182,6 @@ def add_symbol(trend_report):
 
     return trend_report
             
-
 # Method for writing trend reports to the terminal (only the percentage increases for reference)
 def write_terminal_out(stock_code, trend_report):
     stats = add_symbol(trend_report)

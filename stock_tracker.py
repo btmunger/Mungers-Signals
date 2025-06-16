@@ -8,11 +8,21 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 from trends import get_trend_report
-from ai_analysis import get_AI_advice
+from sys import platform
 import os
 
 # Working directory for file paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Retrieve operating sys specific path
+def path_from_os():
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        return "/dev/null"
+    elif platform == "win32":
+        return "NUL"
+    else:
+        print("\nCould not determine operating system. Using default option of Windows.")
+        return "NUL"
 
 # Method for setting up the Selenium Webdriver 
 def init_webdriver(): 
@@ -25,7 +35,8 @@ def init_webdriver():
 
     # Chrome web driver set to Selenium Service
     path = fr"{base_dir}\chromedriver-win64\chromedriver.exe"
-    service = Service(path)
+    log_path = path_from_os()
+    service = Service(path, log_path = log_path) 
     driver = webdriver.Chrome(service=service, options=options)
 
     return driver
@@ -41,6 +52,22 @@ def get_Yahoo_data_entries(driver):
     data_entries = data_entries_container[1].find_elements(By.XPATH,"./*")
 
     return data_entries
+
+# Method to get news headlines regarding a certain stoc
+def get_stock_news(stock_code):
+    #Initalize driver, navigate to Yahoo Finance to get headlines
+    driver = init_webdriver()
+    url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
+    driver.get(url)
+
+    news_headline = []
+    story_items = driver.find_elements(By.CSS_SELECTOR, "[data-testid='storyitem']")
+    for story_item in story_items:
+        story_item_children = story_item.find_elements(By.XPATH, "./*")
+        story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
+        news_headline.append(story_item_elements[0].text)
+
+    return news_headline
 
 # Method to get stock data over the past month for close, high, low, 
 def get_stock_data(stock_code):
@@ -82,10 +109,14 @@ def get_stock_data(stock_code):
         month_low.append(curr_entry[3].text)
         month_close.append(curr_entry[4].text)
         month_volume.append(curr_entry[6].text)
+    
+    driver.quit()
+    news_headline = get_stock_news(stock_code)
 
     # Organize data, return stats report
     stock_data = [week_open, week_high, week_low, week_close, week_volume,
-                  month_open, month_high, month_low, month_close, month_volume]
+                  month_open, month_high, month_low, month_close, month_volume,
+                  news_headline]
     return stock_data
 
 # Method for getting the desired stock code to check from user
@@ -96,7 +127,7 @@ def get_stock_code():
     if len(stock_code) < 1 or len(stock_code) > 5:
         print("\nInvalid stock code entered. Please enter a valid stock code.")
         get_stock_code()
-    else:
+    else: 
         return stock_code
     
 # Method to display options to the user 
@@ -121,6 +152,7 @@ def gather_mode_input():
         stock_code = get_stock_code()
         stock_data = get_stock_data(stock_code)
         get_trend_report(stock_code, stock_data)
+        gather_mode_input()
     elif input_choice == "2":
         get_stock_data()
     elif input_choice == "3":
