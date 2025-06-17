@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 from trends import get_trend_report
+from ai_analysis import ai_analysis
 from sys import platform
 import os
 
@@ -67,13 +68,15 @@ def get_stock_news(stock_code):
         story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
         news_headline.append(story_item_elements[0].text)
 
+    driver.quit()
+
     return news_headline
 
 # Method to get stock data over the past month for close, high, low, 
 def get_stock_data(stock_code):
     # Initalize driver, navigate to Yahoo Finance to get price data
     driver = init_webdriver()
-    print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data..." + "\n")
+    print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data...")
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/history/"
     driver.get(url)
 
@@ -152,7 +155,8 @@ def gather_mode_input():
         stock_code = get_stock_code()
         stock_data = get_stock_data(stock_code)
         get_trend_report(stock_code, stock_data)
-        gather_mode_input()
+        ai_analysis(stock_code)
+        display_options()
     elif input_choice == "2":
         get_stock_data()
     elif input_choice == "3":
