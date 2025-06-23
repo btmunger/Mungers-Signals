@@ -62,13 +62,16 @@ def get_stock_news(stock_code):
     driver.get(url)
 
     news_headline = []
-    story_items = driver.find_elements(By.CSS_SELECTOR, "[data-testid='storyitem']")
+    wait = WebDriverWait(driver, 10)
+    story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
+
     for story_item in story_items:
         story_item_children = story_item.find_elements(By.XPATH, "./*")
         story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
         news_headline.append(story_item_elements[0].text)
 
     driver.quit()
+    print(news_headline)
 
     return news_headline
 
@@ -166,5 +169,6 @@ def gather_mode_input():
         print("Invalid option, please try again.\n")
         gather_mode_input()
 
-print("")
-display_options()
+if __name__ == "__main__":
+    print("")
+    display_options()

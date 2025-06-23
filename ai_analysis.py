@@ -1,5 +1,3 @@
-# A project by Brian Munger
-
 import json
 import pandas as pd
 from datetime import datetime
