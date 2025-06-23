@@ -8,12 +8,18 @@ from transformers import pipeline
 # Method for loading all trend report entries  
 def load_all_json():
     entries = []
+    entries_added = 0
 
     for file_name in os.listdir('trend_reports'):
         full_path = os.path.join('trend_reports', file_name)
         if os.path.isfile(full_path):
             with open(full_path, "r") as file:
                 entries.extend(json.load(file))
+                entries_added += 1
+
+    if entries_added == 0:
+        print("\nNo entries found, could not train model")
+        return -1
 
     return entries
 
@@ -35,8 +41,7 @@ def convert_headlines(data):
 
     return processed_entries
 
-# Method for labeling each entry with buy/sell/hold for AI training, based on predetermined
-# metrics. 
+# Method for labeling an individual entry based on predetermined metrics
 def auto_label_entry(data_frame):
     buy_count = 0
     sell_count = 0
@@ -48,7 +53,9 @@ def auto_label_entry(data_frame):
     else:
         return 'hold'
 
+# Method for labeling each entry with buy/sell/hold for AI training
 def label_entries(data_frame):
+    return
 
 # Method for training the model
 def train_model():
@@ -57,8 +64,9 @@ def train_model():
 # Main method for calling helper functions to train the model
 def train_main():
     data = load_all_json()
-    processed_entries = convert_headlines(data)
-    data_frame = pd.json_normalize(processed_entries)
-    label_entries(data_frame)
+    if data != -1:
+        processed_entries = convert_headlines(data)
+        data_frame = pd.json_normalize(processed_entries)
+        label_entries(data_frame)
 
-    train_model()
+        train_model()
