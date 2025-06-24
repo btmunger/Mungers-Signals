@@ -71,7 +71,7 @@ def get_stock_news(stock_code):
         news_headline.append(story_item_elements[0].text)
 
     driver.quit()
-    print(news_headline)
+    #print(news_headline)
 
     return news_headline
 
