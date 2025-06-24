@@ -87,18 +87,16 @@ def calculate_trends(stock_statistics):
                 pcnt_chng_volume_wk, pcnt_chng_volume_mnth]
 
     # Range calculations
-    opn_clse_range_wk = get_range(pcnt_chng_close_wk, pcnt_chng_open_wk, pcnt_chng_open_wk)
-    opn_clse_range_mnth = get_range(pcnt_chng_close_mnth, pcnt_chng_open_mnth, pcnt_chng_open_mnth)
     high_low_range_wk = get_range(get_percent_change(stock_statistics[1]), get_percent_change(stock_statistics[2]), 
                                   pcnt_chng_open_wk)
     high_low_range_mnth = get_range(get_percent_change(stock_statistics[1]), get_percent_change(stock_statistics[2]), 
                                   pcnt_chng_open_mnth)
-    range_arr = [opn_clse_range_wk, opn_clse_range_mnth, high_low_range_wk, high_low_range_mnth]
+    range_arr = [high_low_range_wk, high_low_range_mnth]
 
     # Moving average calculations (using closing prices)
     ma_wk = get_moving_average(stock_statistics[3], 5)
     ma_mnth = get_moving_average(stock_statistics[8], 20)
-    moving_avg_arr = [ma_wk, ma_mnth, round(ma_wk - ma_mnth, 2), round(ma_wk / ma_mnth, 2)]
+    moving_avg_arr = [round(ma_wk - ma_mnth, 2), round(ma_wk / ma_mnth, 2)]
 
     # STD calculations
     cls_std_wk = get_std(stock_statistics[3], 5)
@@ -125,16 +123,12 @@ def get_entry(stock_code, trend_report):
             "volume_past_month": trend_report[0][5]
         },
         "ranges": {
-            "open_close_range_week": trend_report[1][0],
-            "open_close_range_month": trend_report[1][1],
-            "high_low_range_week": trend_report[1][2],
-            "high_low_range_month": trend_report[1][3]
+            "high_low_range_week": trend_report[1][0],
+            "high_low_range_month": trend_report[1][1]
         },
         "moving_avgs": {
-            "sma_week": trend_report[2][0],
-            "sma_month": trend_report[2][1],
-            "sma_difference": trend_report[2][2],
-            "sma_ratio": trend_report[2][3]
+            "sma_difference": trend_report[2][0],
+            "sma_ratio": trend_report[2][1]
         },
         "standard_dev_calcs": {
             "closing_std_week": trend_report[3][0],
@@ -186,7 +180,7 @@ def add_symbol(trend_report):
 def write_terminal_out(stock_code, trend_report):
     stats = add_symbol(trend_report)
 
-    print("====================================================================")
+    print("\n====================================================================")
     print(fr"                      Trend report for '{stock_code}'             ")
     print("                                                                    ")
     print("              Trends over the last week | last month:               ") 
@@ -195,7 +189,7 @@ def write_terminal_out(stock_code, trend_report):
     print(fr"                   Volume:       {stats[4]}% | {stats[5]}%       ")
     print("                                                                    ")
     print(fr"       Additional trends written to trend_reports/{stock_code}.json") 
-    print("====================================================================")
+    print("====================================================================\n")
    
 # Main function for calculating trends. Calls the appropriate helper functions, prints to the console the report
 # Other .py files that need to calculate the trends of a stock should call this function 
