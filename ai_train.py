@@ -47,28 +47,46 @@ def auto_label_entry(entry):
     sell_count = 0
 
     # Average percent changes
-    if entry["avg_percent_changes"]["close_past_week"] > .5: buy_count += 1
-    elif entry["avg_percent_changes"]["close_past_week"] < -.5: sell_count += 1
-    if entry["avg_percent_changes"]["close_past_month"] > 1: buy_count += 1
-    elif entry["avg_percent_changes"]["close_past_month"] < -1: sell_count += 1
-    if entry["avg_percent_changes"]["open_past_week"] > .5: buy_count += 1
-    elif entry["avg_percent_changes"]["open_past_week"] < -.5: sell_count += 1
-    if entry["avg_percent_changes"]["open_past_month"] > 1: buy_count += 1
-    elif entry["avg_percent_changes"]["open_past_month"] < -1: sell_count += 1
-    if entry["avg_percent_changes"]["volume_past_week"] > 5: buy_count += 1
-    elif entry["avg_percent_changes"]["volume_past_week"] < -5: sell_count += 1
+    if entry["avg_percent_changes"]["close_past_week"] > 1.5: buy_count += 1       # +/-1.5%
+    elif entry["avg_percent_changes"]["close_past_week"] < -1.5: sell_count += 1
+    if entry["avg_percent_changes"]["close_past_month"] > 3: buy_count += 1        # +/-3.0%
+    elif entry["avg_percent_changes"]["close_past_month"] < -3: sell_count += 1
+    if entry["avg_percent_changes"]["open_past_week"] > 1: buy_count += 1          # +/-1.0%
+    elif entry["avg_percent_changes"]["open_past_week"] < -1: sell_count += 1
+    if entry["avg_percent_changes"]["open_past_month"] > 2: buy_count += 1         # +/-2.0%
+    elif entry["avg_percent_changes"]["open_past_month"] < -2: sell_count += 1
+    if entry["avg_percent_changes"]["volume_past_week"] > 20: buy_count += 1       # +20.0%/-10.0%
+    elif entry["avg_percent_changes"]["volume_past_week"] < -10: sell_count += 1
+    if entry["avg_percent_changes"]["volume_past_month"] > 15: buy_count += 1      # +15.0%/-10.0%
+    elif entry["avg_percent_changes"]["volume_past_month"] < -10: sell_count += 1
 
     # Ranges
+    if entry["ranges"]["high_low_range_week"] > 10: buy_count += 1                 # +10.0%/-5.0%
+    elif entry["ranges"]["high_low_range_week"] < -5: sell_count += 1
+    if entry["ranges"]["high_low_range_month"] > 15: buy_count += 1                # +15.0%/-8.0%
+    elif entry["ranges"]["high_low_range_month"] > -8: sell_count += 1
 
     # Moving Averages
+    if entry["moving_avgs"]["sma_difference"] > 2: buy_count += 1                  # +/-2.0%       
+    elif entry["moving_avgs"]["sma_difference"] < -2: sell_count += 1
+    if entry["moving_avgs"]["sma_ratio"] > 1.02: buy_count += 1                    # 1.02 / 0.98
+    elif entry["moving_avgs"]["sma_ratio"] < 0.98: sell_count += 1
 
     # Standard dev calcs
+    if entry["standard_dev_calcs"]["closing_std_week"] < 2 : buy_count += 1        # < 2 / > 4                 
+    elif entry["standard_dev_calcs"]["closing_std_week"] > 4 : sell_count += 1
+    if entry["standard_dev_calcs"]["closing_std_month"] < 2 : buy_count += 1       # < 2 / > 4                   
+    elif entry["standard_dev_calcs"]["closing_std_month"] > 4 : sell_count += 1
+    if entry["standard_dev_calcs"]["zscore_week"] >= 0.5 and entry["standard_dev_calcs"]["zscore_week"] <= 1.5: buy_count += 1                       
+    elif entry["standard_dev_calcs"]["zscore_week"] < -1.5 : sell_count += 1       # +0.5-1.5/-1.5
+    if entry["standard_dev_calcs"]["zscore_month"] >= 0.5 and entry["standard_dev_calcs"]["zscore_week"] <= 2: buy_count += 1                       
+    elif entry["standard_dev_calcs"]["zscore_month"] < -1.5 : sell_count += 1      # +0.5-2.0/-1.5
 
     # Stock news
     if entry["stock_news"]["headline_1"] == "positive": buy_count += 1 
-    else: sell_count += 1
+    elif entry["stock_news"]["headline_1"] == "negative": sell_count += 1
     if entry["stock_news"]["headline_2"] == "positive": buy_count += 1
-    else: sell_count += 1
+    elif entry["stock_news"]["headline_2"] == "negative": sell_count += 1
 
     if buy_count > sell_count:
         return 'buy'
