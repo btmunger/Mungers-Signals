@@ -4,13 +4,14 @@ from datetime import datetime
 import os
 
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import classification_report
 import joblib
 
 from transformers import pipeline
 
 entries_num = 0
+trained_model_name = "trained_stock_model.pkl"
 
 # Method for loading all trend report entries  
 def load_all_json():
@@ -53,7 +54,7 @@ def determine_training_label(buy_count, sell_count):
     # For reference, there are 16 conditional statments in the auto_label_entry 
 
     # If the difference between the too is less than 5, mark as hold
-    if buy_count - sell_count < 5 or sell_count - buy_count < 5:
+    if abs(buy_count - sell_count) < 5:
         return "hold"
     elif buy_count > sell_count: 
         return "buy"
@@ -112,6 +113,8 @@ def auto_label_entry(entry):
 
 # Method for labeling each entry with buy/sell/hold for AI training
 def label_entries(processed_entries):
+    global entries_num
+
     for entry in processed_entries:
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
@@ -155,16 +158,20 @@ def train_model(data_frame):
     
     # Random forest classifier (to improve predicition accuracy)
     # Works by training multiple decision trees on random subsets of features listed above
-    model = RandomForestClassifier(n_estimators=100, random_state=32)
-    model.fit(x_train, y_train)
+    if not os.path.exists(trained_model_name):
+        model = SGDClassifier(loss="log_loss", random_state=32)
+        model.partial_fit(x_train, y_train, classes=[1,0,-1])
+    else:
+        model = joblib.load(trained_model_name)
+        model.partial_fit(x_features, y_features)
 
     # Generate predictions from a trained machine model
     y_pred = model.predict(x_test)
     print(classification_report(y_test, y_pred))
 
     # Save model, print success message 
-    joblib.dump(model, "trained_stock_model.pkl")
-    print("Model trained on ")
+    joblib.dump(model, trained_model_name)
+    print(fr"Model trained on {entries_num} entries, saved as {trained_model_name}")
 
 # Main method for calling helper functions to train the model
 def train_main():
