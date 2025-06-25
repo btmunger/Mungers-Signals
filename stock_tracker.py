@@ -68,6 +68,7 @@ def get_stock_news(stock_code):
     news_headline = []
     wait = WebDriverWait(driver, 10)
     story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
+    print(len(story_items))
 
     for story_item in story_items:
         story_item_children = story_item.find_elements(By.XPATH, "./*")
@@ -103,22 +104,35 @@ def get_stock_data(stock_code):
     data_entries = get_Yahoo_data_entries(driver)
 
     # Read stock data entries from the last month 
-    for index in range(20):
-        curr_entry = data_entries[index].find_elements(By.XPATH, "./*") 
-        # For last week statistics
-        if index < 5:
-            week_open.append(curr_entry[1].text)
-            week_high.append(curr_entry[2].text)
-            week_low.append(curr_entry[3].text)
-            week_close.append(curr_entry[4].text)
-            week_volume.append(curr_entry[6].text)
+    days_num = 0
+    for entry_num in range(20):
+        curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
+        #print(curr_entry[0].text)
 
-        # For last month statistics
-        month_open.append(curr_entry[1].text)
-        month_high.append(curr_entry[2].text)
-        month_low.append(curr_entry[3].text)
-        month_close.append(curr_entry[4].text)
-        month_volume.append(curr_entry[6].text)
+        # For last week statistics
+        try:
+            if days_num < 5:
+                week_open.append(curr_entry[1].text)
+                week_high.append(curr_entry[2].text)
+                week_low.append(curr_entry[3].text)
+                week_close.append(curr_entry[4].text)
+                week_volume.append(curr_entry[6].text)
+
+            # For last month statistics
+            month_open.append(curr_entry[1].text)
+            month_high.append(curr_entry[2].text)
+            month_low.append(curr_entry[3].text)
+            month_close.append(curr_entry[4].text)
+            month_volume.append(curr_entry[6].text)
+
+            days_num += 1
+        except IndexError:
+            if days_num < 5: week_open.pop()
+            month_open.pop()
+
+            pass
+
+            
     
     driver.quit()
     news_headline = get_stock_news(stock_code)
