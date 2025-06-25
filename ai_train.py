@@ -41,6 +41,18 @@ def convert_headlines(data):
 
     return processed_entries
 
+# Method for determining the training label depending on buy/sell count
+def determine_training_label(buy_count, sell_count):
+    # For reference, there are 16 conditional statments in the auto_label_entry 
+
+    # If the difference between the too is less than 5, mark as hold
+    if buy_count - sell_count < 5 or sell_count - buy_count < 5:
+        return "hold"
+    elif buy_count > sell_count: 
+        return "buy"
+    elif sell_count > buy_count:
+        return "sell"
+
 # Method for labeling an individual entry based on predetermined metrics
 def auto_label_entry(entry):
     buy_count = 0
@@ -83,17 +95,13 @@ def auto_label_entry(entry):
     elif entry["standard_dev_calcs"]["zscore_month"] < -1.5 : sell_count += 1      # +0.5-2.0/-1.5
 
     # Stock news
-    if entry["stock_news"]["headline_1"] == "positive": buy_count += 1 
+    if entry["stock_news"]["headline_1"] == "positive": buy_count += 1             # pos / neg / neutral
     elif entry["stock_news"]["headline_1"] == "negative": sell_count += 1
     if entry["stock_news"]["headline_2"] == "positive": buy_count += 1
     elif entry["stock_news"]["headline_2"] == "negative": sell_count += 1
 
-    if buy_count > sell_count:
-        return 'buy'
-    elif sell_count > buy_count:
-        return 'sell'
-    else:
-        return 'hold'
+    # Use helper function to determine label
+    return determine_training_label(buy_count, sell_count)
 
 # Method for labeling each entry with buy/sell/hold for AI training
 def label_entries(processed_entries):
@@ -103,7 +111,7 @@ def label_entries(processed_entries):
     return processed_entries
 
 # Method for training the model
-def train_model():
+def train_model(data_frame):
     return
 
 # Main method for calling helper functions to train the model
@@ -114,4 +122,4 @@ def train_main():
         labeled_entries = label_entries(processed_entries)
         data_frame = pd.json_normalize(labeled_entries)
 
-        train_model()
+        train_model(data_frame)
