@@ -7,10 +7,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
-from trends import get_trend_report
-from ai_analysis import ai_analysis
 from sys import platform
 import os
+import csv
+
+from trends import get_trend_report
+from ai_analysis import ai_analysis
+from ai_train import train_main
+
 
 # Working directory for file paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +40,7 @@ def init_webdriver():
 
     # Chrome web driver set to Selenium Service
     path = fr"{base_dir}\chromedriver-win64\chromedriver.exe"
-    log_path = path_from_os()
+    log_path = path_from_os() # send logs to different places depending on os type
     service = Service(path, log_path = log_path) 
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -136,6 +140,37 @@ def get_stock_code():
     else: 
         return stock_code
     
+# Method for loading the saved stock codes from the .csv file
+def load_stock_list():
+    with open("train_stock_list.csv", "r") as file:
+        reader = csv.reader(file)
+        stock_list = next(reader)
+        #print(stock_list)
+
+    return stock_list
+    
+# Method for calling the necessary functions for getting the stock analysis 
+def manage_option_one():
+    stock_code = get_stock_code()
+    stock_data = get_stock_data(stock_code)
+
+    get_trend_report(stock_code, stock_data)
+    ai_analysis(stock_code)
+    
+    display_options()
+
+# Method for calling the necessary functions for training the AI model
+def train_AI():
+    stock_list = load_stock_list()
+
+    # For each stock code specified in the CSV file...
+    for stock_code in stock_list:
+        stock_data = get_stock_data(stock_code)
+        get_trend_report(stock_code, stock_data)
+
+    train_main()
+    display_options()
+    
 # Method to display options to the user 
 def display_options():
     print("====================================================================")
@@ -144,7 +179,7 @@ def display_options():
     print("                                                                    ")            
     print("                Options (type the corresponding #):                 ")
     print("                   1. AI Buy / Sell / Hold                          ")
-    print("                   2. Reflect On Past Decisions                     ")                               
+    print("                   2. Train AI Model                                ")                               
     print("                   3. Exit                                          ")     
     print("====================================================================")
 
@@ -155,13 +190,9 @@ def display_options():
 def gather_mode_input():
     input_choice = input("Select an option 1-3: ")
     if input_choice == "1":
-        stock_code = get_stock_code()
-        stock_data = get_stock_data(stock_code)
-        get_trend_report(stock_code, stock_data)
-        ai_analysis(stock_code)
-        display_options()
+        manage_option_one()
     elif input_choice == "2":
-        get_stock_data()
+        train_AI()
     elif input_choice == "3":
         print("\nGoodbye!\n")
     else:
