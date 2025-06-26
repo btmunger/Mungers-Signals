@@ -11,6 +11,7 @@ from sys import platform
 import os
 import csv
 import time
+import urllib3
 
 from trends import get_trend_report
 from ai_analysis import ai_analysis
@@ -90,6 +91,28 @@ def get_stock_news(driver, stock_code):
     #print(news_headline)
 
     return news_headline
+
+import urllib3
+import time
+
+# Method to attempt to fix connection error
+def get_stock_data_with_retry(driver, stock_code):
+    retries = 3
+
+    for attempt in range(retries):
+        try:
+            return get_stock_data(driver, stock_code)
+        # Print protocol error, small wait before retrying
+        except urllib3.exceptions.ProtocolError as e:
+            print(f"ProtocolError on attempt {attempt+1}: {e}")
+            time.sleep(2)  
+        # Print connection reset error, small wait before retrying
+        except ConnectionResetError as e:
+            print(f"Connection reset on attempt {attempt+1}: {e}")
+            time.sleep(2)
+    # If allowed retries is exceeded, print error message
+    print(f"Failed to get data for {stock_code} after {retries} attempts.")
+    return None
 
 # Method to get stock data over the past month for close, high, low, 
 def get_stock_data(driver, stock_code):
@@ -192,7 +215,7 @@ def train_AI():
 
     # For each stock code specified in the CSV file...
     for stock_code in stock_list:
-        stock_data = get_stock_data(driver, stock_code)
+        stock_data = get_stock_data_with_retry(driver, stock_code)
         get_trend_report(stock_code, stock_data)
 
     #train_main()
