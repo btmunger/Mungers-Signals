@@ -45,7 +45,7 @@ def get_moving_average(data, window):
         else:
             window_average = get_window_average(data, window, index)
             moving_averages.append(window_average)
-    
+            
     ma_round = round(moving_averages[-1], 2)
     return ma_round
 

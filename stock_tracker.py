@@ -10,6 +10,7 @@ from datetime import datetime
 from sys import platform
 import os
 import csv
+import time
 
 from trends import get_trend_report
 from ai_analysis import ai_analysis
@@ -35,8 +36,13 @@ def init_webdriver():
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
+    
+    # Disable Chronium/Selenium log messages
     options.add_argument("--ignore-certificate-errors")
     options.add_argument('--log-level=3') 
+    options.add_argument("--disable-logging")  
+    options.add_argument("--disable-speech-api")  
+    options.add_argument("--disable-features=MediaSessionService,SpeechRecognition")  
 
     # Chrome web driver set to Selenium Service
     path = fr"{base_dir}\chromedriver-win64\chromedriver.exe"
@@ -59,31 +65,35 @@ def get_Yahoo_data_entries(driver):
     return data_entries
 
 # Method to get news headlines regarding a certain stoc
-def get_stock_news(stock_code):
+def get_stock_news(driver, stock_code):
     #Initalize driver, navigate to Yahoo Finance to get headlines
-    driver = init_webdriver()
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
     driver.get(url)
 
     news_headline = []
     wait = WebDriverWait(driver, 10)
     story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
-    print(len(story_items))
 
     for story_item in story_items:
-        story_item_children = story_item.find_elements(By.XPATH, "./*")
-        story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
-        news_headline.append(story_item_elements[0].text)
+        try:
+            story_item_children = story_item.find_elements(By.XPATH, "./*")
+            if len(story_item_children) < 2:
+                continue
 
-    driver.quit()
+            story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
+            if story_item_elements:
+                news_headline.append(story_item_elements[0].text)
+        except Exception as ex:
+            print(f"Skipped story item due to error: {ex}")
+            continue
+
     #print(news_headline)
 
     return news_headline
 
 # Method to get stock data over the past month for close, high, low, 
-def get_stock_data(stock_code):
+def get_stock_data(driver, stock_code):
     # Initalize driver, navigate to Yahoo Finance to get price data
-    driver = init_webdriver()
     print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data...")
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/history/"
     driver.get(url)
@@ -105,7 +115,8 @@ def get_stock_data(stock_code):
 
     # Read stock data entries from the last month 
     days_num = 0
-    for entry_num in range(20):
+    entry_num = 0
+    while days_num < 20:
         curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
         #print(curr_entry[0].text)
 
@@ -127,15 +138,14 @@ def get_stock_data(stock_code):
 
             days_num += 1
         except IndexError:
-            if days_num < 5: week_open.pop()
-            month_open.pop()
-
             pass
 
-            
+        entry_num += 1
     
-    driver.quit()
-    news_headline = get_stock_news(stock_code)
+    week_open = [p for p in week_open if "Dividend" not in p]
+    month_open = [p for p in month_open if "Dividend" not in p]
+
+    news_headline = get_stock_news(driver, stock_code)
 
     # Organize data, return stats report
     stock_data = [week_open, week_high, week_low, week_close, week_volume,
@@ -166,23 +176,28 @@ def load_stock_list():
 # Method for calling the necessary functions for getting the stock analysis 
 def manage_option_one():
     stock_code = get_stock_code()
-    stock_data = get_stock_data(stock_code)
+    driver = init_webdriver()
+    stock_data = get_stock_data(driver, stock_code)
 
     get_trend_report(stock_code, stock_data)
     ai_analysis(stock_code)
     
+    driver.quit()
     display_options()
 
 # Method for calling the necessary functions for training the AI model
 def train_AI():
     stock_list = load_stock_list()
+    driver = init_webdriver()
 
     # For each stock code specified in the CSV file...
     for stock_code in stock_list:
-        stock_data = get_stock_data(stock_code)
+        stock_data = get_stock_data(driver, stock_code)
         get_trend_report(stock_code, stock_data)
 
-    train_main()
+    #train_main()
+
+    driver.quit()
     display_options()
     
 # Method to display options to the user 
