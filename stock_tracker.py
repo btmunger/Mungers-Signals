@@ -17,9 +17,6 @@ from trends import get_trend_report
 from ai_analysis import ai_analysis
 from ai_train import train_main
 
-# Working directory for file paths
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
 # Retrieve operating sys specific path
 def path_from_os():
     if platform == "linux" or platform == "linux2" or platform == "darwin":
@@ -34,8 +31,19 @@ def path_from_os():
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
+    #options.add_argument("--headless")
+    #options.add_argument("--disable-gpu")
+    options.add_argument("start-maximized")
+    options.add_experimental_option(
+        "prefs", {
+            # block image loading
+            "profile.managed_default_content_settings.images": 2,
+        }
+    )
+
+    # Make Selenium less detectable as bot activity
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
     
     # Disable Chronium/Selenium log messages
     options.add_argument("--ignore-certificate-errors")
@@ -45,9 +53,8 @@ def init_webdriver():
     options.add_argument("--disable-features=MediaSessionService,SpeechRecognition")  
 
     # Chrome web driver set to Selenium Service
-    path = fr"{base_dir}\chromedriver-win64\chromedriver.exe"
     log_path = path_from_os() # send logs to different places depending on os type
-    service = Service(path, log_path = log_path) 
+    service = Service(log_path = log_path) 
     driver = webdriver.Chrome(service=service, options=options)
 
     return driver
@@ -55,14 +62,17 @@ def init_webdriver():
 # Method for grabbing the data entries table HTML element
 def get_Yahoo_data_entries(driver):
     # "./*" = get the child element(s)
-    table = driver.find_element(By.CSS_SELECTOR, "[data-testid='history-table']")
-    table_children = table.find_elements(By.XPATH,"./*")
-    table_container = table_children[2].find_element(By.XPATH,"./*")
+    try:
+        table = driver.find_element(By.CSS_SELECTOR, "[data-testid='history-table']")
+        table_children = table.find_elements(By.XPATH,"./*")
+        table_container = table_children[2].find_element(By.XPATH,"./*")
 
-    data_entries_container = table_container.find_elements(By.XPATH,"./*")
-    data_entries = data_entries_container[1].find_elements(By.XPATH,"./*")
+        data_entries_container = table_container.find_elements(By.XPATH,"./*")
+        data_entries = data_entries_container[1].find_elements(By.XPATH,"./*")
 
-    return data_entries
+        return data_entries
+    except:
+        return None
 
 # Method to get news headlines regarding a certain stoc
 def get_stock_news(driver, stock_code):
@@ -75,7 +85,7 @@ def get_stock_news(driver, stock_code):
     story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
 
     for story_item in story_items:
-        try:
+        try: 
             story_item_children = story_item.find_elements(By.XPATH, "./*")
             if len(story_item_children) < 2:
                 continue
@@ -83,8 +93,12 @@ def get_stock_news(driver, stock_code):
             story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
             if story_item_elements:
                 news_headline.append(story_item_elements[0].text)
-        except Exception as ex:
-            print(f"Skipped story item due to error: {ex}")
+        except:
+            driver.quit()
+            driver = init_webdriver()
+            driver.get(url)
+            time.sleep(3)
+
             continue
 
     #print(news_headline) 
@@ -92,12 +106,12 @@ def get_stock_news(driver, stock_code):
 
 # Method to attempt to fix connection error
 # Reference for the urllib3 library: https://urllib3.readthedocs.io/en/1.26.9/reference/urllib3.exceptions.html
-def get_stock_data_with_retry(driver, stock_code):
+def get_stock_data_with_retry(driver, stock_code, mode):
     retries = 3
 
     for attempt in range(retries):
         try:
-            return get_stock_data(driver, stock_code)
+            return get_stock_data(driver, stock_code, mode)
         # Print protocol error, small wait before retrying
         except urllib3.exceptions.ProtocolError as e:
             print(f"ProtocolError on attempt {attempt+1}: {e}")
@@ -111,7 +125,7 @@ def get_stock_data_with_retry(driver, stock_code):
     return None
 
 # Method to get stock data over the past month for close, high, low, 
-def get_stock_data(driver, stock_code):
+def get_stock_data(driver, stock_code, mode):
     # Initalize driver, navigate to Yahoo Finance to get price data
     print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data...")
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/history/"
@@ -131,46 +145,63 @@ def get_stock_data(driver, stock_code):
 
     # Use helper function to get the table 
     data_entries = get_Yahoo_data_entries(driver)
+    if data_entries == None:
+        print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
+                " Enter a valid stock code and try again.\n")
+        return None
 
     # Read stock data entries from the last month 
     days_num = 0
     entry_num = 0
-    while days_num < 20:
+
+    try:
         curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
-        #print(curr_entry[0].text)
-
-        # For last week statistics
-        try:
-            if days_num < 5:
-                week_open.append(curr_entry[1].text)
-                week_high.append(curr_entry[2].text)
-                week_low.append(curr_entry[3].text)
-                week_close.append(curr_entry[4].text)
-                week_volume.append(curr_entry[6].text)
-
-            # For last month statistics
-            month_open.append(curr_entry[1].text)
-            month_high.append(curr_entry[2].text)
-            month_low.append(curr_entry[3].text)
-            month_close.append(curr_entry[4].text)
-            month_volume.append(curr_entry[6].text)
-
-            days_num += 1
-        except IndexError:
-            pass
-
-        entry_num += 1
     
-    week_open = [p for p in week_open if "Dividend" not in p]
-    month_open = [p for p in month_open if "Dividend" not in p]
+        while days_num < 20:
+            curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
+            #print(curr_entry[0].text)
 
-    news_headline = get_stock_news(driver, stock_code)
+            # For last week statistics
+            try:
+                if days_num < 5:
+                    week_open.append(curr_entry[1].text)
+                    week_high.append(curr_entry[2].text)
+                    week_low.append(curr_entry[3].text)
+                    week_close.append(curr_entry[4].text)
+                    week_volume.append(curr_entry[6].text)
 
-    # Organize data, return stats report
-    stock_data = [week_open, week_high, week_low, week_close, week_volume,
-                  month_open, month_high, month_low, month_close, month_volume,
-                  news_headline]
-    return stock_data
+                # For last month statistics
+                month_open.append(curr_entry[1].text)
+                month_high.append(curr_entry[2].text)
+                month_low.append(curr_entry[3].text)
+                month_close.append(curr_entry[4].text)
+                month_volume.append(curr_entry[6].text)
+
+                days_num += 1
+            except IndexError:
+                pass
+
+            entry_num += 1
+
+        week_open = [p for p in week_open if "Dividend" not in p]
+        month_open = [p for p in month_open if "Dividend" not in p]
+
+        news_headline = get_stock_news(driver, stock_code)
+
+        # Organize data, return stats report
+        stock_data = [week_open, week_high, week_low, week_close, week_volume,
+                    month_open, month_high, month_low, month_close, month_volume,
+                    news_headline]
+        return stock_data
+    except IndexError:
+        if mode == 1:
+            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
+                    " Enter a valid stock code and try again.\n")
+            display_options()
+        elif mode == 2:
+            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
+                    " Skipping for now...\n")
+            return None
 
 # Method for getting the desired stock code to check from user
 def get_stock_code():
@@ -196,10 +227,11 @@ def load_stock_list():
 def manage_option_one():
     stock_code = get_stock_code()
     driver = init_webdriver()
-    stock_data = get_stock_data_with_retry(driver, stock_code)
+    stock_data = get_stock_data_with_retry(driver, stock_code, 1)
 
-    get_trend_report(stock_code, stock_data)
-    ai_analysis(stock_code)
+    if stock_data != None:
+        get_trend_report(stock_code, stock_data)
+        ai_analysis(stock_code)
     
     driver.quit()
     display_options()
@@ -211,8 +243,9 @@ def train_AI():
 
     # For each stock code specified in the CSV file...
     for stock_code in stock_list:
-        stock_data = get_stock_data_with_retry(driver, stock_code)
-        get_trend_report(stock_code, stock_data)
+        stock_data = get_stock_data_with_retry(driver, stock_code, 2)
+        if stock_data != None:
+            get_trend_report(stock_code, stock_data)
 
     train_main()
 
