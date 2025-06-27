@@ -47,10 +47,11 @@ def convert_headlines(data):
 
 # Method for determining the training label depending on buy/sell count
 def determine_training_label(buy_count, sell_count):
-    # For reference, there are 16 conditional statments in the auto_label_entry 
+    # For reference, there are 16 conditional statments in the auto_label_entry
+    #print(f"buy_count: {buy_count} sell_count: {sell_count}") 
 
     # If the difference between the too is less than 5, mark as hold
-    if abs(buy_count - sell_count) < 5:
+    if abs(buy_count - sell_count) < 3:
         return "hold"
     elif buy_count > sell_count: 
         return "buy"
@@ -112,6 +113,7 @@ def label_entries(processed_entries):
     global entries_num
 
     for entry in processed_entries:
+        print(auto_label_entry(entry))
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
 
@@ -186,8 +188,7 @@ def train_main():
         data_frame["headline_sentiment.headline_1"] = data_frame["headline_sentiment.headline_1"].map({"positive": 1, "neutral": 0, "negative": -1})
         data_frame["headline_sentiment.headline_2"] = data_frame["headline_sentiment.headline_2"].map({"positive": 1, "neutral": 0, "negative": -1})
 
-        train_model(data_frame)
+        #train_model(data_frame)
 
 if __name__ == "__main__":
-    print("")
     train_main()
