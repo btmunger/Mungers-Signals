@@ -17,7 +17,6 @@ from trends import get_trend_report
 from ai_analysis import ai_analysis
 from ai_train import train_main
 
-
 # Working directory for file paths
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,8 +34,8 @@ def path_from_os():
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
+    #options.add_argument("--headless")
+    #options.add_argument("--disable-gpu")
     
     # Disable Chronium/Selenium log messages
     options.add_argument("--ignore-certificate-errors")
@@ -88,14 +87,11 @@ def get_stock_news(driver, stock_code):
             print(f"Skipped story item due to error: {ex}")
             continue
 
-    #print(news_headline)
-
+    #print(news_headline) 
     return news_headline
 
-import urllib3
-import time
-
 # Method to attempt to fix connection error
+# Reference for the urllib3 library: https://urllib3.readthedocs.io/en/1.26.9/reference/urllib3.exceptions.html
 def get_stock_data_with_retry(driver, stock_code):
     retries = 3
 
@@ -105,11 +101,11 @@ def get_stock_data_with_retry(driver, stock_code):
         # Print protocol error, small wait before retrying
         except urllib3.exceptions.ProtocolError as e:
             print(f"ProtocolError on attempt {attempt+1}: {e}")
-            time.sleep(2)  
+            time.sleep(4)  
         # Print connection reset error, small wait before retrying
         except ConnectionResetError as e:
             print(f"Connection reset on attempt {attempt+1}: {e}")
-            time.sleep(2)
+            time.sleep(4)
     # If allowed retries is exceeded, print error message
     print(f"Failed to get data for {stock_code} after {retries} attempts.")
     return None
@@ -183,7 +179,7 @@ def get_stock_code():
     # Ensure code with correct length is entered
     if len(stock_code) < 1 or len(stock_code) > 5:
         print("\nInvalid stock code entered. Please enter a valid stock code.")
-        get_stock_code()
+        return get_stock_code()
     else: 
         return stock_code
     
@@ -200,7 +196,7 @@ def load_stock_list():
 def manage_option_one():
     stock_code = get_stock_code()
     driver = init_webdriver()
-    stock_data = get_stock_data(driver, stock_code)
+    stock_data = get_stock_data_with_retry(driver, stock_code)
 
     get_trend_report(stock_code, stock_data)
     ai_analysis(stock_code)

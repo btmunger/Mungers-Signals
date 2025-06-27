@@ -3,13 +3,6 @@ import pandas as pd
 from datetime import datetime
 import os
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import classification_report
-import joblib
-
-from transformers import pipeline
-
 entries_num = 0
 trained_model_name = "trained_stock_model.pkl"
 
@@ -29,11 +22,13 @@ def load_all_json():
         print("\nNo entries found, could not train model")
         return -1
 
+    print("\nLoaded all trend reports. ")
     return entries
 
 # Method to convert headlines into positive/negative/neutral labels
 # Reference: https://huggingface.co/blog/sentiment-analysis-python and https://huggingface.co/ProsusAI/finbert
 def convert_headlines(data):
+    from transformers import pipeline
     sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
 
     processed_entries = []
@@ -47,6 +42,7 @@ def convert_headlines(data):
         entry["headline_sentiment"] = updated_sentiment
         processed_entries.append(entry)
 
+    print("\nConverted headlines to positive / negative / neutral sentiments. ")
     return processed_entries
 
 # Method for determining the training label depending on buy/sell count
@@ -119,10 +115,16 @@ def label_entries(processed_entries):
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
 
+    print(f"\nLabeled {entries_num} entries with training indicators. ")
     return processed_entries
 
 # Method for training the model
 def train_model(data_frame):
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import SGDClassifier
+    from sklearn.metrics import classification_report
+    import joblib
+
     # Select features 
     feature_columns = [
         "avg_percent_changes.close_past_week",
@@ -185,3 +187,7 @@ def train_main():
         data_frame["headline_sentiment.headline_2"] = data_frame["headline_sentiment.headline_2"].map({"positive": 1, "neutral": 0, "negative": -1})
 
         train_model(data_frame)
+
+if __name__ == "__main__":
+    print("")
+    train_main()

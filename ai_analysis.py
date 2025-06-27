@@ -2,11 +2,10 @@ import json
 import pandas as pd
 from datetime import datetime
 
-from transformers import pipeline
-
 # Method to convert headlines into positive/negative/neutral labels
 # Reference: https://huggingface.co/blog/sentiment-analysis-python and https://huggingface.co/ProsusAI/finbert
 def headlines_pos_neg(entry):
+    from transformers import pipeline
     sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert") # Finbert model is great with finances, use this instead of default model
     updated_sentiment = {}
 
