@@ -34,8 +34,8 @@ def path_from_os():
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    #options.add_argument("--headless")
-    #options.add_argument("--disable-gpu")
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
     
     # Disable Chronium/Selenium log messages
     options.add_argument("--ignore-certificate-errors")
@@ -214,7 +214,7 @@ def train_AI():
         stock_data = get_stock_data_with_retry(driver, stock_code)
         get_trend_report(stock_code, stock_data)
 
-    #train_main()
+    train_main()
 
     driver.quit()
     display_options()
