@@ -113,7 +113,6 @@ def label_entries(processed_entries):
     global entries_num
 
     for entry in processed_entries:
-        print(auto_label_entry(entry))
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
 
@@ -171,7 +170,7 @@ def train_model(data_frame):
 
     # Generate predictions from a trained machine model
     y_pred = model.predict(x_test)
-    print(classification_report(y_test, y_pred))
+    print(classification_report(y_test, y_pred, zero_division=0))
 
     # Save model, print success message 
     joblib.dump(model, trained_model_name)
@@ -188,7 +187,7 @@ def train_main():
         data_frame["headline_sentiment.headline_1"] = data_frame["headline_sentiment.headline_1"].map({"positive": 1, "neutral": 0, "negative": -1})
         data_frame["headline_sentiment.headline_2"] = data_frame["headline_sentiment.headline_2"].map({"positive": 1, "neutral": 0, "negative": -1})
 
-        #train_model(data_frame)
+        train_model(data_frame)
 
 if __name__ == "__main__":
     train_main()
