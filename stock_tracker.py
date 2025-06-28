@@ -35,8 +35,8 @@ def path_from_os():
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    #options.add_argument("--headless")          # Comment the next two arguments to have the webdriver run on your screen
-    #options.add_argument("--disable-gpu")
+    options.add_argument("--headless")          # Comment the next two arguments to have the webdriver run on your screen
+    options.add_argument("--disable-gpu")
     options.add_argument("start-maximized")
     options.add_experimental_option(
         "prefs", {
