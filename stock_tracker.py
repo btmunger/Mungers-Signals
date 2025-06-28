@@ -196,11 +196,11 @@ def get_stock_data(driver, stock_code, mode):
     # No stock with the provided code exists
     except IndexError:
         if mode == 1:
-            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
+            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
                     " Enter a valid stock code and try again.\n")
             display_options()
         elif mode == 2:
-            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
+            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
                     " Skipping for now...\n")
             return None
 
