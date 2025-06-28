@@ -247,7 +247,7 @@ def train_AI():
         if stock_data != None:
             get_trend_report(stock_code, stock_data)
 
-    train_main()
+    #train_main()
 
     driver.quit()
     display_options()

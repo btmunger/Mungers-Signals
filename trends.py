@@ -30,7 +30,7 @@ def get_range(x, y, open):
 def get_window_average(data, window, index):
     window_sum = 0
     for i in range(index + 1 - window, index + 1):
-        window_sum += float(data[i])
+        window_sum += float(data[i].replace(",", ""))
 
     return window_sum / window
 
@@ -57,7 +57,7 @@ def get_std(data, window):
         if index + 1 < window:
             stds.append(None)
         else:
-            window_slice = [float(x) for x in data[index + 1 - window : index + 1]]
+            window_slice = [float(x.replace(",", "")) for x in data[index + 1 - window : index + 1]]
             std = statistics.stdev(window_slice)
             stds.append(std)
 
@@ -66,7 +66,8 @@ def get_std(data, window):
 
 # Method for calculating the zscores
 def get_zscore(price, ma, std):
-    z_score = round((float(price) - float(ma)) / float(std), 2)
+    z_score = round((float(price.replace(",", "")) - ma) / 
+                    std, 2)
     return z_score
 
 # Method for calculating trends based on the organized statistics 
