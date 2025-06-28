@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 from datetime import datetime
 from sys import platform
 import os
@@ -36,7 +37,7 @@ def init_webdriver():
     options.add_argument("start-maximized")
     options.add_experimental_option(
         "prefs", {
-            # block image loading
+            # Block image loading
             "profile.managed_default_content_settings.images": 2,
         }
     )
@@ -53,7 +54,7 @@ def init_webdriver():
     options.add_argument("--disable-features=MediaSessionService,SpeechRecognition")  
 
     # Chrome web driver set to Selenium Service
-    log_path = path_from_os() # send logs to different places depending on os type
+    log_path = path_from_os() # send logs to different places (dev/null or NUL) depending on os type
     service = Service(log_path = log_path) 
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -161,8 +162,11 @@ def get_stock_data(driver, stock_code, mode):
             curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
             #print(curr_entry[0].text)
 
-            # For last week statistics
-            try:
+            if "Split" in curr_entry[1].text or "Dividend" in curr_entry[1].text:
+                entry_num += 1
+                continue 
+            else: 
+                # For last week statistics
                 if days_num < 5:
                     week_open.append(curr_entry[1].text)
                     week_high.append(curr_entry[2].text)
@@ -178,13 +182,7 @@ def get_stock_data(driver, stock_code, mode):
                 month_volume.append(curr_entry[6].text)
 
                 days_num += 1
-            except IndexError:
-                pass
-
-            entry_num += 1
-
-        week_open = [p for p in week_open if "Dividend" not in p]
-        month_open = [p for p in month_open if "Dividend" not in p]
+                entry_num += 1
 
         news_headline = get_stock_news(driver, stock_code)
 
@@ -247,7 +245,7 @@ def train_AI():
         if stock_data != None:
             get_trend_report(stock_code, stock_data)
 
-    #train_main()
+    train_main()
 
     driver.quit()
     display_options()
