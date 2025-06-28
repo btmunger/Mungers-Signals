@@ -20,10 +20,13 @@ from ai_train import train_main
 
 # Retrieve operating sys specific path
 def path_from_os():
-    if platform == "linux" or platform == "linux2" or platform == "darwin":
+    # Linux or Mac
+    if platform == "linux" or platform == "linux2" or platform == "darwin":     
         return "/dev/null"
+    # Windows
     elif platform == "win32":
         return "NUL"
+    # Not recognized -> default Windows
     else:
         print("\nCould not determine operating system. Using default option of Windows.")
         return "NUL"
@@ -32,7 +35,7 @@ def path_from_os():
 def init_webdriver(): 
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
-    #options.add_argument("--headless")
+    #options.add_argument("--headless")          # Comment the next two arguments to have the webdriver run on your screen
     #options.add_argument("--disable-gpu")
     options.add_argument("start-maximized")
     options.add_experimental_option(
@@ -73,6 +76,7 @@ def get_Yahoo_data_entries(driver):
 
         return data_entries
     except:
+        # No news headlines exist in the website's HTML
         return None
 
 # Method to get news headlines regarding a certain stoc
@@ -83,24 +87,19 @@ def get_stock_news(driver, stock_code):
 
     news_headline = []
     wait = WebDriverWait(driver, 10)
+
+    # Use helper function to grab a list of the story items for a stock, loop through them
     story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
-
-    for story_item in story_items:
-        try: 
-            story_item_children = story_item.find_elements(By.XPATH, "./*")
-            if len(story_item_children) < 2:
-                continue
-
-            story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
-            if story_item_elements:
-                news_headline.append(story_item_elements[0].text)
-        except:
-            driver.quit()
-            driver = init_webdriver()
-            driver.get(url)
-            time.sleep(3)
-
+    for story_item in story_items: 
+        # Grab the news stories headlines, check if there is at least two of them
+        story_item_children = story_item.find_elements(By.XPATH, "./*")
+        if len(story_item_children) < 2:
+            print(f"\nERROR: Not enough news stories reported for {stock_code}")
             continue
+
+        story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
+        if story_item_elements:
+            news_headline.append(story_item_elements[0].text)
 
     #print(news_headline) 
     return news_headline
@@ -155,13 +154,16 @@ def get_stock_data(driver, stock_code, mode):
     days_num = 0
     entry_num = 0
 
+    # Try / except used as there will be an element error if the stock code requested does not exist
     try:
         curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
     
+        # Save the last 20 entries
         while days_num < 20:
             curr_entry = data_entries[entry_num].find_elements(By.XPATH, "./*") 
             #print(curr_entry[0].text)
 
+            # Do not save entries that contain dividends or splits
             if "Split" in curr_entry[1].text or "Dividend" in curr_entry[1].text:
                 entry_num += 1
                 continue 
@@ -191,6 +193,7 @@ def get_stock_data(driver, stock_code, mode):
                     month_open, month_high, month_low, month_close, month_volume,
                     news_headline]
         return stock_data
+    # No stock with the provided code exists
     except IndexError:
         if mode == 1:
             print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
@@ -227,7 +230,9 @@ def manage_option_one():
     driver = init_webdriver()
     stock_data = get_stock_data_with_retry(driver, stock_code, 1)
 
+    # Do not attempt if no stock data is returned
     if stock_data != None:
+        # Redirects to trends.py, then ai_analysis.py
         get_trend_report(stock_code, stock_data)
         ai_analysis(stock_code)
     
@@ -235,16 +240,19 @@ def manage_option_one():
     display_options()
 
 # Method for calling the necessary functions for training the AI model
-def train_AI():
+def manage_option_two():
     stock_list = load_stock_list()
     driver = init_webdriver()
 
     # For each stock code specified in the CSV file...
     for stock_code in stock_list:
         stock_data = get_stock_data_with_retry(driver, stock_code, 2)
+        # Do not attempt if no stock data is returned
         if stock_data != None:
+            # Redirects to trends.py
             get_trend_report(stock_code, stock_data)
 
+    # Redirects to ai_train.py
     train_main()
 
     driver.quit()
@@ -271,7 +279,7 @@ def gather_mode_input():
     if input_choice == "1":
         manage_option_one()
     elif input_choice == "2":
-        train_AI()
+        manage_option_two()
     elif input_choice == "3":
         print("\nGoodbye!\n")
     else:
@@ -279,6 +287,7 @@ def gather_mode_input():
         print("Invalid option, please try again.\n")
         gather_mode_input()
 
+# Call main function
 if __name__ == "__main__":
     print("")
     display_options()
