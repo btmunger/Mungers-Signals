@@ -11,6 +11,7 @@ def load_all_json():
     entries = []
     entries_added = 0
  
+    # Retrieve and loop through the trend reports
     for file_name in os.listdir('trend_reports'):
         full_path = os.path.join('trend_reports', file_name)
         if os.path.isfile(full_path):
@@ -18,6 +19,7 @@ def load_all_json():
                 entries.extend(json.load(file))
                 entries_added += 1
 
+    # If none are found, throw error
     if entries_added == 0:
         print("\nNo entries found, could not train model")
         return -1
@@ -33,6 +35,7 @@ def convert_headlines(data):
 
     processed_entries = []
 
+    # For each trend entry, use the AI sentiment analysis on the news headlines
     for entry in data:
         updated_sentiment = {}
         for key, headline in entry["stock_news"].items():
@@ -112,6 +115,7 @@ def auto_label_entry(entry):
 def label_entries(processed_entries):
     global entries_num
 
+    # Label each entry 
     for entry in processed_entries:
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
@@ -184,10 +188,12 @@ def train_main():
         labeled_entries = label_entries(processed_entries)
         data_frame = pd.json_normalize(labeled_entries)
 
+        # Map pos / neu / neg to 1 / 0 / -1 
         data_frame["headline_sentiment.headline_1"] = data_frame["headline_sentiment.headline_1"].map({"positive": 1, "neutral": 0, "negative": -1})
         data_frame["headline_sentiment.headline_2"] = data_frame["headline_sentiment.headline_2"].map({"positive": 1, "neutral": 0, "negative": -1})
 
         train_model(data_frame)
 
+# Access main function
 if __name__ == "__main__":
     train_main()
