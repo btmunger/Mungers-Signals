@@ -91,11 +91,19 @@ def get_stock_news(driver, stock_code):
     # Use helper function to grab a list of the story items for a stock, loop through them
     story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
     for story_item in story_items: 
-        # Grab the news stories headlines, check if there is at least two of them
+        # Grab the elements of the current news headline. Sometimes, the headlines have a different HTML structure
         story_item_children = story_item.find_elements(By.XPATH, "./*")
         if len(story_item_children) < 2:
-            print(f"\nERROR: Not enough news stories reported for {stock_code}")
-            continue
+            try:
+                story_item_children = story_item.find_element(By.XPATH, "./*") 
+                story_item_children_div = story_item_children.find_elements(By.XPATH, "./*")
+                if story_item_children_div:
+                    news_headline.append(story_item_children_div[0].text)
+
+                continue
+            except Exception as ex:
+                print(f"Issue with news HTML elements: {ex}\nSkipping current story...")
+                continue
 
         story_item_elements = story_item_children[1].find_elements(By.XPATH, "./*")
         if story_item_elements:
