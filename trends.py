@@ -23,6 +23,8 @@ def get_percent_change(data):
 
 # Method to find the range between a open/close or high/low
 def get_range(x, y, open):
+    # Prevent divide by zero error (likely its just a very small percentage rounded off)
+    if open == 0.0: open = 0.01
     range_rounded = round((float(x) - float(y)) / float(open) * 100, 2)
     return range_rounded
 
@@ -182,14 +184,14 @@ def write_terminal_out(stock_code, trend_report):
     stats = add_symbol(trend_report)
 
     print("\n====================================================================")
-    print(fr"                      Trend report for '{stock_code}'             ")
-    print("                                                                    ")
-    print("              Trends over the last week | last month:               ") 
-    print(fr"                   Closing:      {stats[0]}% | {stats[1]}%       ")
-    print(fr"                   Open:         {stats[2]}% | {stats[3]}%       ") 
-    print(fr"                   Volume:       {stats[4]}% | {stats[5]}%       ")
-    print("                                                                    ")
-    print(fr"       Additional trends written to trend_reports/{stock_code}.json") 
+    print(fr"                      Trend report for '{stock_code}'               ")
+    print("                                                                      ")
+    print("              Trends over the last week | last month:                 ") 
+    print(fr"                   Closing:      {stats[0]}% | {stats[1]}%          ")
+    print(fr"                   Open:         {stats[2]}% | {stats[3]}%          ") 
+    print(fr"                   Volume:       {stats[4]}% | {stats[5]}%          ")
+    print("                                                                      ")
+    print(fr"       Additional trends written to trend_reports/{stock_code}.json ") 
     print("====================================================================\n")
    
 # Main function for calculating trends. Calls the appropriate helper functions, prints to the console the report
