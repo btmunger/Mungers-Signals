@@ -23,7 +23,9 @@ def get_percent_change(data):
 
 # Method to find the range between a open/close or high/low
 def get_range(x, y):
-    range_rounded = round((float(x) - float(y)) / float(y) * 100, 2)
+    if float(y) == 0.0:
+        raise Exception("Error calculating range of high/low: Divide by 0 error.")
+    range_rounded = round((float(x) - float(y)) / float(y), 2)
     return range_rounded
 
 # Helper function for getting the window avg for moving average calculation
@@ -168,12 +170,13 @@ def write_trend_json(stock_code, trend_report):
         json.dump(entries, file, indent=4)
 
 # Method for adding a '+' symbol if there is an increasing trend
-def add_symbol(trend_report):
-    for index in range(6):
-        if trend_report[index] > 0:
-            trend_report[index] = fr"+{trend_report[index]}"
-
-    return trend_report
+def add_symbol(pcnt_chng_array):
+    stats = []
+    for pcnt_chng in pcnt_chng_array:
+        if pcnt_chng > 0: stats.append(f"+{pcnt_chng}")
+        else: stats.append(pcnt_chng)
+        
+    return stats
             
 # Method for writing trend reports to the terminal (only the percentage increases for reference)
 def write_terminal_out(stock_code, trend_report):
@@ -194,5 +197,5 @@ def write_terminal_out(stock_code, trend_report):
 # Other .py files that need to calculate the trends of a stock should call this function 
 def get_trend_report(stock_code, stock_statistics):
     trend_report = calculate_trends(stock_statistics)
-    write_trend_json(stock_code, trend_report)
     write_terminal_out(stock_code, trend_report[0])
+    write_trend_json(stock_code, trend_report)
