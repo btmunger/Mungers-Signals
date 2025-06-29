@@ -22,10 +22,8 @@ def get_percent_change(data):
     return pct_chng
 
 # Method to find the range between a open/close or high/low
-def get_range(x, y, open):
-    # Prevent divide by zero error (likely its just a very small percentage rounded off)
-    if open == 0.0: open = 0.01
-    range_rounded = round((float(x) - float(y)) / float(open) * 100, 2)
+def get_range(x, y):
+    range_rounded = round((float(x) - float(y)) / float(y) * 100, 2)
     return range_rounded
 
 # Helper function for getting the window avg for moving average calculation
@@ -90,10 +88,8 @@ def calculate_trends(stock_statistics):
                 pcnt_chng_volume_wk, pcnt_chng_volume_mnth]
 
     # Range calculations
-    high_low_range_wk = get_range(get_percent_change(stock_statistics[1]), get_percent_change(stock_statistics[2]), 
-                                  pcnt_chng_open_wk)
-    high_low_range_mnth = get_range(get_percent_change(stock_statistics[1]), get_percent_change(stock_statistics[2]), 
-                                  pcnt_chng_open_mnth)
+    high_low_range_wk = get_range(max(stock_statistics[1]), min(stock_statistics[2]))
+    high_low_range_mnth = get_range(max(stock_statistics[6]), min(stock_statistics[7]))
     range_arr = [high_low_range_wk, high_low_range_mnth]
 
     # Moving average calculations (using closing prices)
