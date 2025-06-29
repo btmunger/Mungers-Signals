@@ -51,7 +51,7 @@ def determine_training_label(buy_count, sell_count):
     #print(f"buy_count: {buy_count} sell_count: {sell_count}") 
 
     # If the difference between the too is less than 5, mark as hold
-    if abs(buy_count - sell_count) < 3:
+    if abs(buy_count - sell_count) < 2:
         return "hold"
     elif buy_count > sell_count: 
         return "buy"
@@ -96,7 +96,7 @@ def auto_label_entry(entry):
     elif entry["standard_dev_calcs"]["closing_std_month"] > 4 : sell_count += 1
     if entry["standard_dev_calcs"]["zscore_week"] >= 0.5 and entry["standard_dev_calcs"]["zscore_week"] <= 1.5: buy_count += 1                       
     elif entry["standard_dev_calcs"]["zscore_week"] < -1.5 : sell_count += 1       # +0.5-1.5/-1.5
-    if entry["standard_dev_calcs"]["zscore_month"] >= 0.5 and entry["standard_dev_calcs"]["zscore_week"] <= 2: buy_count += 1                       
+    if entry["standard_dev_calcs"]["zscore_month"] >= 0.5 and entry["standard_dev_calcs"]["zscore_month"] <= 2: buy_count += 1                       
     elif entry["standard_dev_calcs"]["zscore_month"] < -1.5 : sell_count += 1      # +0.5-2.0/-1.5
 
     # Stock news

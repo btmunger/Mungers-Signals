@@ -23,6 +23,9 @@ def get_percent_change(data):
 
 # Method to find the range between a open/close or high/low
 def get_range(x, y):
+    x = x.replace(",", "")
+    y = y.replace(",", "")
+
     if float(y) == 0.0:
         raise Exception("Error calculating range of high/low: Divide by 0 error.")
     range_rounded = round((float(x) - float(y)) / float(y), 2)
