@@ -90,7 +90,7 @@ def get_stock_news(driver, stock_code):
 
     # Use helper function to grab a list of the story items for a stock, loop through them
     story_items = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='storyitem']")))
-    for story_item in story_items: 
+    for story_item in story_items:  
         # Grab the elements of the current news headline. Sometimes, the headlines have a different HTML structure
         story_item_children = story_item.find_elements(By.XPATH, "./*")
         if len(story_item_children) < 2:
@@ -251,6 +251,8 @@ def manage_option_one():
 def manage_option_two():
     stock_list = load_stock_list()
     driver = init_webdriver()
+
+    print(f"\nCreating reports to train model...")
 
     # For each stock code specified in the CSV file...
     for stock_code in stock_list:

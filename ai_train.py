@@ -125,6 +125,7 @@ def label_entries(processed_entries):
 
 # Method for training the model
 def train_model(data_frame):
+    # pip install scikit-learn
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import SGDClassifier
     from sklearn.metrics import classification_report
