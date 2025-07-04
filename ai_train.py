@@ -24,7 +24,7 @@ def load_all_json():
         print("\nNo entries found, could not train model")
         return -1
 
-    print("\nLoaded all trend reports. ")
+    print("\nLoaded all trend reports.\n")
     return entries
 
 # Method to convert headlines into positive/negative/neutral labels
@@ -161,7 +161,7 @@ def train_model(data_frame):
     # random_state: seed number for random shuffling of data before splitting
     # set this to get the same split every time
     x_train, x_test, y_train, y_test = train_test_split(
-        x_features, y_features, test_size=0.2, random_state=42
+        x_features, y_features, test_size=0.2, random_state=42, stratify=y_features
         )
     
     # Random forest classifier (to improve predicition accuracy)

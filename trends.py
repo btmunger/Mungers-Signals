@@ -10,15 +10,21 @@ current_directory = os.getcwd()
 # Method to get the average percentage change over a data set
 def get_percent_change(data):
     percent_changes_sum = 0
+    data_length = len(data)
     
     # Find the perecent change between each data point
     for index in range(1, len(data)):
-        prev = float(data[index - 1].replace(",", ""))
-        curr = float(data[index].replace(",", ""))
-        change = (curr - prev) / prev * 100
-        percent_changes_sum += change
+        try: 
+            prev = float(data[index - 1].replace(",", ""))
+            curr = float(data[index].replace(",", ""))
+            change = (curr - prev) / prev * 100
+            percent_changes_sum += change
+        # Occasionaly the history table will have '-' for volume data, mark no change change
+        except ValueError: 
+            data_length -= 1
+            continue
 
-    pct_chng = round(percent_changes_sum / (len(data) - 1), 2)
+    pct_chng = round(percent_changes_sum / (data_length - 1), 2)
     return pct_chng
 
 # Method to find the range between a open/close or high/low
