@@ -115,7 +115,7 @@ def calculate_trends(stock_statistics):
 
 # Method for checking that enough stories exist to prevent index out of bound error
 def check_headlines(trend_report, story_num):
-    if len(trend_report[4] > 2) or (len(trend_report == 1) and story_num == 0):
+    if len(trend_report[4] > 2) or (len(trend_report) == 1 and story_num == 0):
         return trend_report[4][story_num]
     else:
         return "no story"
