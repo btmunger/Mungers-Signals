@@ -113,8 +113,19 @@ def calculate_trends(stock_statistics):
     trend_report = [pcnt_chng_arr, range_arr, moving_avg_arr, std_array, stock_statistics[10]]  # stock_statistics[10] = stock news array
     return trend_report
 
+# Method for checking that enough stories exist to prevent index out of bound error
+def check_headlines(trend_report, story_num):
+    if len(trend_report[4] > 2) or (len(trend_report == 1) and story_num == 0):
+        return trend_report[4][story_num]
+    else:
+        return "no story"
+
 # Method for formatting the trends entry 
 def get_entry(stock_code, trend_report):
+    # Ensure stories exist to prevent index out of bounds error
+    headline_1 = check_headlines(trend_report, 0)
+    headline_2 = check_headlines(trend_report, 1)     
+
     entry = {
         "timestamp": datetime.now().isoformat(),
         "stock_code": stock_code,
@@ -141,8 +152,8 @@ def get_entry(stock_code, trend_report):
             "zscore_month": trend_report[3][3] 
         },
         "stock_news": {
-            "headline_1": trend_report[4][0],
-            "headline_2": trend_report[4][1]
+            "headline_1": headline_1,
+            "headline_2": headline_2
         }
     }
 
