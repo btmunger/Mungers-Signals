@@ -9,6 +9,7 @@ import sys
 
 option_selected = -1
 
+# Class for GUI main window
 class MainWindow(QMainWindow):
     # Create GUI window
     def __init__(self):
@@ -18,14 +19,14 @@ class MainWindow(QMainWindow):
         # Taskbar icon logic: https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7/1552105#1552105; DamonJW
         myappid = u'arbitrary string in unicode' 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-        self.setWindowIcon(QIcon("gui/logo.ico"))
+        self.setWindowIcon(QIcon("gui/icon/logo.ico"))
 
         self.setWindowTitle("Munger's Stock Advisor")
         self.setGeometry(100, 100, 400, 300)
 
         # Define layouts
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(10)         
+        main_layout.setSpacing(15)         
         main_layout.setContentsMargins(10, 10, 10, 10)  
         title_layout = QVBoxLayout()
         title_layout.setSpacing(0)   
@@ -76,9 +77,6 @@ class MainWindow(QMainWindow):
         self.button_group.addButton(self.radio_buy_sell)
         self.button_group.addButton(self.radio_train)
         self.button_group.addButton(self.radio_exit)
-        main_layout.addWidget(self.radio_buy_sell)
-        main_layout.addWidget(self.radio_train)
-        main_layout.addWidget(self.radio_exit)
 
         # Disclaimer and about button
         bottom_buttons_layout = QHBoxLayout()
@@ -121,11 +119,14 @@ class MainWindow(QMainWindow):
     def show_about(self):
         QMessageBox.information(self, "About", "")
 
+# Main function for setting up / running the main page GUI
 def run_main_window():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+    return option_selected
 
 if __name__ == "__main__":
     run_main_window()
