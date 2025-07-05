@@ -8,6 +8,7 @@ import sys
 option_selected = -1
 
 class MainWindow(QMainWindow):
+    # Create GUI window
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Munger's Stock Advisor")
@@ -40,7 +41,7 @@ class MainWindow(QMainWindow):
         self.radio_train = QRadioButton("2. Train AI Model")
         self.radio_exit = QRadioButton("3. Exit")
 
-        # Center the radio buttons, add title and submit button
+        # Center the radio buttons, add title and sellect button
         options_layout = QVBoxLayout()
         options_layout.setAlignment(Qt.AlignCenter)
         label_select = QLabel("Select an Option:")
@@ -50,7 +51,6 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(self.radio_train)
         options_layout.addWidget(self.radio_exit)
         main_layout.addLayout(options_layout)
-
         submit_btn = QPushButton("Select")
         submit_btn.setFixedWidth(100)
         submit_btn.clicked.connect(self.handle_submit)
@@ -74,26 +74,24 @@ class MainWindow(QMainWindow):
         # Disclaimer and about button
         bottom_buttons_layout = QHBoxLayout()
         bottom_buttons_layout.setSpacing(20)
-
         disclaimer_btn = QPushButton("Disclaimer")
         disclaimer_btn.setFixedWidth(100)
         disclaimer_btn.clicked.connect(self.show_disclaimer)
-
         about_btn = QPushButton("About")
         about_btn.setFixedWidth(100)
         about_btn.clicked.connect(self.show_about)
-
         bottom_buttons_layout.addStretch()
         bottom_buttons_layout.addWidget(disclaimer_btn)
         bottom_buttons_layout.addWidget(about_btn)
         bottom_buttons_layout.addStretch()
-
         main_layout.addLayout(bottom_buttons_layout)
 
+        # Set window
         container = QWidget()
         container.setLayout(main_layout)
         self.setCentralWidget(container)
 
+    # Method for handling the option select 
     def handle_submit(self):
         global option_selected
 
@@ -106,9 +104,11 @@ class MainWindow(QMainWindow):
         else:
             QMessageBox.warning(self, "No Selection", "Please select an option before submitting.")
 
+    # Method that displays a disclaimer about the program
     def show_disclaimer(self):
         QMessageBox.information(self, "Disclaimer", "")
 
+    # Method that displays an about text description of the program
     def show_about(self):
         QMessageBox.information(self, "About", "")
 
