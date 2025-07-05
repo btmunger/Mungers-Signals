@@ -3,6 +3,8 @@ from PySide6.QtWidgets import (
     QButtonGroup, QHBoxLayout, QSizePolicy
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
+import ctypes
 import sys
 
 option_selected = -1
@@ -11,6 +13,13 @@ class MainWindow(QMainWindow):
     # Create GUI window
     def __init__(self):
         super().__init__()
+
+        # Set the window / taskbar icon 
+        # Taskbar icon logic: https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7/1552105#1552105; DamonJW
+        myappid = u'arbitrary string in unicode' 
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        self.setWindowIcon(QIcon("gui/logo.ico"))
+
         self.setWindowTitle("Munger's Stock Advisor")
         self.setGeometry(100, 100, 400, 300)
 
