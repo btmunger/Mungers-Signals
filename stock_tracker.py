@@ -231,6 +231,12 @@ def load_stock_list():
         #print(stock_list)
 
     return stock_list
+
+# Method for removing prevously generated trend reports
+def rm_reports():
+    for item_name in os.listdir("trend_reports/"):
+        item_path = os.path.join("trend_reports/", item_name)
+        os.remove(item_path)
     
 # Method for calling the necessary functions for getting the stock analysis 
 def manage_option_one():
@@ -249,6 +255,8 @@ def manage_option_one():
 
 # Method for calling the necessary functions for training the AI model
 def manage_option_two():
+    rm_reports()
+
     stock_list = load_stock_list()
     driver = init_webdriver()
 
@@ -300,4 +308,6 @@ def gather_mode_input():
 # Call main function
 if __name__ == "__main__":
     print("")
+    from gui.main_gui import run_gui
+    run_gui()
     display_options()

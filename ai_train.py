@@ -67,7 +67,7 @@ def auto_label_entry(entry):
     sell_count = 0
 
     # Average percent changes
-    if entry["avg_percent_changes"]["close_past_week"] > 1.5: buy_count += 1       # +/-1.5%
+    if entry["avg_percent_changes"]["close_past_week"] > 1.2: buy_count += 1       # +1.2%/-1.5%
     elif entry["avg_percent_changes"]["close_past_week"] < -1.5: sell_count += 1
     if entry["avg_percent_changes"]["close_past_month"] > 3: buy_count += 1        # +/-3.0%
     elif entry["avg_percent_changes"]["close_past_month"] < -3: sell_count += 1
@@ -89,7 +89,7 @@ def auto_label_entry(entry):
     # Moving Averages
     if entry["moving_avgs"]["sma_difference"] > 2: buy_count += 1                  # +/-2.0%       
     elif entry["moving_avgs"]["sma_difference"] < -2: sell_count += 1
-    if entry["moving_avgs"]["sma_ratio"] > 1.02: buy_count += 1                    # 1.02 / 0.98
+    if entry["moving_avgs"]["sma_ratio"] > 1.01: buy_count += 1                    # 1.01 / 0.98
     elif entry["moving_avgs"]["sma_ratio"] < 0.98: sell_count += 1
 
     # Standard dev calcs
@@ -117,6 +117,7 @@ def label_entries(processed_entries):
 
     # Label each entry 
     for entry in processed_entries:
+        print(auto_label_entry(entry))
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
 
@@ -167,7 +168,7 @@ def train_model(data_frame):
     # Random forest classifier (to improve predicition accuracy)
     # Works by training multiple decision trees on random subsets of features listed above
     if not os.path.exists(trained_model_name):
-        model = SGDClassifier(loss="log_loss", random_state=32)
+        model = SGDClassifier(loss="log_loss", random_state=32, lass_weight='balanced')
         model.partial_fit(x_train, y_train, classes=[1,0,-1])
     else:
         model = joblib.load(trained_model_name)
