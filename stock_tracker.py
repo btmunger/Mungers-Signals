@@ -308,6 +308,6 @@ def gather_mode_input():
 # Call main function
 if __name__ == "__main__":
     print("")
-    from gui.main_gui import run_gui
-    run_gui()
+    from gui.main_gui import run_main_window
+    run_main_window()
     display_options()
