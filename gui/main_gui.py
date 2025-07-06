@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QRadioButton, QPushButton, QMessageBox, 
+    QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QRadioButton, QPushButton, QMessageBox,
     QButtonGroup, QHBoxLayout, QSizePolicy
 )
 from PySide6.QtCore import Qt
@@ -7,16 +7,12 @@ from PySide6.QtGui import QIcon
 import ctypes
 import sys
 
-option_selected = -1
-
 # Class for GUI main window
 class MainWindow(QMainWindow):
-    # Create GUI window
     def __init__(self):
         super().__init__()
 
         # Set the window / taskbar icon 
-        # Taskbar icon logic: https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7/1552105#1552105; DamonJW
         myappid = u'arbitrary string in unicode' 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         self.setWindowIcon(QIcon("gui/icon/logo.ico"))
@@ -24,12 +20,15 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Munger's Stock Advisor")
         self.setGeometry(100, 100, 400, 300)
 
+        # Initialize option selected variable
+        self.option_selected = -1
+
         # Define layouts
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(15)         
-        main_layout.setContentsMargins(10, 10, 10, 10)  
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(10, 10, 10, 10)
         title_layout = QVBoxLayout()
-        title_layout.setSpacing(0)   
+        title_layout.setSpacing(0)
         title_layout.setContentsMargins(0, 0, 0, 0)
 
         # Create the title element using HTML
@@ -51,7 +50,7 @@ class MainWindow(QMainWindow):
         self.radio_train = QRadioButton("2. Train AI Model")
         self.radio_exit = QRadioButton("3. Exit")
 
-        # Center the radio buttons, add title and sellect button
+        # Center the radio buttons, add title and select button
         options_layout = QVBoxLayout()
         options_layout.setAlignment(Qt.AlignCenter)
         label_select = QLabel("Select an Option:")
@@ -61,12 +60,13 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(self.radio_train)
         options_layout.addWidget(self.radio_exit)
         main_layout.addLayout(options_layout)
+
         submit_btn = QPushButton("Select")
         submit_btn.setFixedWidth(100)
         submit_btn.clicked.connect(self.handle_submit)
         submit_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        # Center it within the options block
+        # Center the button within the options block
         submit_container = QHBoxLayout()
         submit_container.setAlignment(Qt.AlignCenter)
         submit_container.addWidget(submit_btn)
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         self.button_group.addButton(self.radio_train)
         self.button_group.addButton(self.radio_exit)
 
-        # Disclaimer and about button
+        # Disclaimer and about buttons
         bottom_buttons_layout = QHBoxLayout()
         bottom_buttons_layout.setSpacing(20)
         disclaimer_btn = QPushButton("Disclaimer")
@@ -98,35 +98,31 @@ class MainWindow(QMainWindow):
         container.setLayout(main_layout)
         self.setCentralWidget(container)
 
-    # Method for handling the option select 
     def handle_submit(self):
-        global option_selected
-
         if self.radio_buy_sell.isChecked():
-            option_selected = 1
+            self.option_selected = 1
         elif self.radio_train.isChecked():
-            option_selected = 2
+            self.option_selected = 2
         elif self.radio_exit.isChecked():
-            self.close()
+            self.option_selected = 3
+            self.close()  # Close the window for Exit
         else:
             QMessageBox.warning(self, "No Selection", "Please select an option before submitting.")
+            return
 
-    # Method that displays a disclaimer about the program
+        # Quit the app event loop to return the selected option
+        QApplication.quit()
+
     def show_disclaimer(self):
         QMessageBox.information(self, "Disclaimer", "")
 
-    # Method that displays an about text description of the program
     def show_about(self):
         QMessageBox.information(self, "About", "")
 
-# Main function for setting up / running the main page GUI
 def run_main_window():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    app.exec()  # Blocks the rest of the code from running until QApplication.quit() is called in handle_submit()
 
-    return option_selected
-
-if __name__ == "__main__":
-    run_main_window()
+    return window.option_selected

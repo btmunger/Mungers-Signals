@@ -251,7 +251,8 @@ def manage_option_one():
         ai_analysis(stock_code)
     
     driver.quit()
-    display_options()
+    option = run_main_window()
+    display_options(option)
 
 # Method for calling the necessary functions for training the AI model
 def manage_option_two():
@@ -274,10 +275,11 @@ def manage_option_two():
     train_main()
 
     driver.quit()
-    display_options()
+    option = run_main_window()
+    display_options(option)
     
 # Method to display options to the user 
-def display_options():
+def display_options(option):
     print("====================================================================")
     print("                Welcome to Munger's Stock Advisor!                  ")
     print("                  Written by Brian Munger, 2025                     ")     
@@ -289,11 +291,11 @@ def display_options():
     print("====================================================================")
 
     # Gather user input for their mode choice
-    gather_mode_input()
+    gather_mode_input(option)
 
 # Method to gather user input for the mode they want
-def gather_mode_input():
-    input_choice = input("Select an option 1-3: ")
+def gather_mode_input(input_choice):
+    #input_choice = input("Select an option 1-3: ")
     if input_choice == "1":
         manage_option_one()
     elif input_choice == "2":
@@ -309,5 +311,5 @@ def gather_mode_input():
 if __name__ == "__main__":
     print("")
     from gui.main_gui import run_main_window
-    run_main_window()
-    display_options()
+    option = run_main_window()
+    display_options(option)
