@@ -253,30 +253,6 @@ def manage_option_one():
     driver.quit()
     option = run_main_window()
     display_options(option)
-
-# Method for calling the necessary functions for training the AI model
-def manage_option_two():
-    rm_reports()
-
-    stock_list = load_stock_list()
-    driver = init_webdriver()
-
-    print(f"\nCreating reports to train model...")
-
-    # For each stock code specified in the CSV file...
-    for stock_code in stock_list:
-        stock_data = get_stock_data_with_retry(driver, stock_code, 2)
-        # Do not attempt if no stock data is returned
-        if stock_data != None:
-            # Redirects to trends.py
-            get_trend_report(stock_code, stock_data)
-
-    # Redirects to ai_train.py
-    train_main()
-
-    driver.quit()
-    option = run_main_window()
-    display_options(option)
     
 # Method to display options to the user 
 def display_options(option):
@@ -295,10 +271,15 @@ def display_options(option):
 
 # Method to gather user input for the mode they want
 def gather_mode_input(input_choice):
+    from gui.main_gui import run_main_window
+    option = run_main_window()
+    display_options(option)
     print(f"\nOption selected: {input_choice}")
+
     if input_choice == 1:
         manage_option_one()
     elif input_choice == 2:
+        from gui.train_gui import manage_option_two
         manage_option_two()
     elif input_choice == 3:
         print("\nGoodbye!\n")
@@ -309,6 +290,4 @@ def gather_mode_input(input_choice):
 # Call main function
 if __name__ == "__main__":
     print("")
-    from gui.main_gui import run_main_window
-    option = run_main_window()
-    display_options(option)
+    gather_mode_input()
