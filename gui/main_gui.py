@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         self.radio_train = QRadioButton("2. Train AI Model")
         self.radio_exit = QRadioButton("3. Exit")
 
-        # Center the radio buttons, add title and select button
+        # Center the radio buttons, add title button
         options_layout = QVBoxLayout()
         options_layout.setAlignment(Qt.AlignCenter)
         label_select = QLabel("Select an Option:")
@@ -60,16 +60,16 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(self.radio_train)
         options_layout.addWidget(self.radio_exit)
         main_layout.addLayout(options_layout)
-
-        submit_btn = QPushButton("Select")
-        submit_btn.setFixedWidth(100)
-        submit_btn.clicked.connect(self.handle_submit)
-        submit_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # Select button 
+        select_btn = QPushButton("Select")
+        select_btn.setFixedWidth(100)
+        select_btn.clicked.connect(self.handle_select)
+        select_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Center the button within the options block
         submit_container = QHBoxLayout()
         submit_container.setAlignment(Qt.AlignCenter)
-        submit_container.addWidget(submit_btn)
+        submit_container.addWidget(select_btn)
         options_layout.addLayout(submit_container)
 
         # Group radio buttons so only one can be selected
@@ -98,7 +98,9 @@ class MainWindow(QMainWindow):
         container.setLayout(main_layout)
         self.setCentralWidget(container)
 
-    def handle_submit(self):
+    # Class method for handling when an option is selected
+    def handle_select(self):
+        # Mark the appropriate selection
         if self.radio_buy_sell.isChecked():
             self.option_selected = 1
         elif self.radio_train.isChecked():
@@ -119,6 +121,7 @@ class MainWindow(QMainWindow):
     def show_about(self):
         QMessageBox.information(self, "About", "")
 
+# Main method for running the title / into GUI window
 def run_main_window():
     app = QApplication(sys.argv)
     window = MainWindow()
