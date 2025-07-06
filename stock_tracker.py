@@ -284,7 +284,7 @@ def display_options(option):
     print("                Welcome to Munger's Stock Advisor!                  ")
     print("                  Written by Brian Munger, 2025                     ")     
     print("                                                                    ")            
-    print("                Options (type the corresponding #):                 ")
+    print("                           Options:                                 ")
     print("                   1. AI Buy / Sell / Hold                          ")
     print("                   2. Train AI Model                                ")                               
     print("                   3. Exit                                          ")     
@@ -295,17 +295,16 @@ def display_options(option):
 
 # Method to gather user input for the mode they want
 def gather_mode_input(input_choice):
-    #input_choice = input("Select an option 1-3: ")
-    if input_choice == "1":
+    print(f"\nOption selected: {input_choice}")
+    if input_choice == 1:
         manage_option_one()
-    elif input_choice == "2":
+    elif input_choice == 2:
         manage_option_two()
-    elif input_choice == "3":
+    elif input_choice == 3:
         print("\nGoodbye!\n")
     else:
-        # Invalid choice, prompt again
-        print("Invalid option, please try again.\n")
-        gather_mode_input()
+        print("ERROR: Invalid option selected.\n")
+        return
 
 # Call main function
 if __name__ == "__main__":

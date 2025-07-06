@@ -107,7 +107,6 @@ class MainWindow(QMainWindow):
             self.option_selected = 2
         elif self.radio_exit.isChecked():
             self.option_selected = 3
-            self.close()  # Close the window for Exit
         else:
             QMessageBox.warning(self, "No Selection", "Please select an option before submitting.")
             return
@@ -127,5 +126,5 @@ def run_main_window():
     window = MainWindow()
     window.show()
     app.exec()  # Blocks the rest of the code from running until QApplication.quit() is called in handle_submit()
-
+    
     return window.option_selected
