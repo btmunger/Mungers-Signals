@@ -9,14 +9,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from datetime import datetime
 from sys import platform
-import os
-import csv
 import time
 import urllib3
 
 from trends import get_trend_report
 from ai_analysis import ai_analysis
-from ai_train import train_main
 
 # Retrieve operating sys specific path
 def path_from_os():
@@ -222,21 +219,6 @@ def get_stock_code():
         return get_stock_code()
     else: 
         return stock_code
-    
-# Method for loading the saved stock codes from the .csv file
-def load_stock_list():
-    with open("train_stock_list.csv", "r") as file:
-        reader = csv.reader(file)
-        stock_list = next(reader)
-        #print(stock_list)
-
-    return stock_list
-
-# Method for removing prevously generated trend reports
-def rm_reports():
-    for item_name in os.listdir("trend_reports/"):
-        item_path = os.path.join("trend_reports/", item_name)
-        os.remove(item_path)
     
 # Method for calling the necessary functions for getting the stock analysis 
 def manage_option_one():

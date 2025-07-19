@@ -2,10 +2,12 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QRadioButton, QPushButton, QMessageBox, 
     QButtonGroup, QHBoxLayout, QSizePolicy
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
 import ctypes
 import sys
+import csv
+import os
 
 # Import functions from stock_tracker.py, trends.py, and ai_train.py
 from stock_tracker import rm_reports, load_stock_list, init_webdriver, get_stock_data_with_retry
@@ -14,12 +16,18 @@ from ai_train import train_main
 
 # Class for running the training 
 class TrainLogic(QThread):
+    progress_updated = Signal(int, int)
+    finished = Signal()
+
     # Method for calling the necessary functions for training the AI model
-    def run_option_two(self):
+    def run(self):
         # Following three function calls redirect to stock_tracker.py
         rm_reports()
         stock_list = load_stock_list()
         driver = init_webdriver()
+
+        completed = 0
+        total = len(stock_list)
 
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
@@ -28,10 +36,13 @@ class TrainLogic(QThread):
             if stock_data != None:
                 # Redirects to trends.py
                 get_trend_report(stock_code, stock_data)
+                completed += 1
+                self.progress_updated.emit(completed, total)
 
         # Redirects to ai_train.py
         train_main()
         driver.quit()
+        self.finished.emit()
 
 # Class for GUI train window (option 2)
 class TrainWindow(QMainWindow):
@@ -43,8 +54,12 @@ class TrainWindow(QMainWindow):
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         self.setWindowIcon(QIcon("gui/icon/logo.ico"))
 
+        # Window title and inital position / size of GUI
         self.setWindowTitle("Munger's Stock Advisor")
         self.setGeometry(100, 100, 400, 300)
+
+        # Initalize result variable for determining if stock reports were successfully gathered
+        self.result = 0
 
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
@@ -71,16 +86,18 @@ class TrainWindow(QMainWindow):
         self.thread.finished.connect(self.training_complete)
         self.thread.start()
 
-        def update_progress(self, completed, total): 
-            return
+    def update_progress(self, completed, total): 
+        self.progress_label.setText(f"Progress: {completed} / {total}")
+        self.status_label.setText(f"Saving trend report {completed} of {total}...")
         
-        def training_complete(self):
-            return 
+    def training_complete(self):
+        self.status_label.setText("Training complete.")
 
+# Function for managing the second option. Logic located in this file to update the GUI
 def manage_option_two():
     app = QApplication(sys.argv)
     window = TrainWindow()
     window.show()
     app.exec()
 
-    return
+    return window.result
