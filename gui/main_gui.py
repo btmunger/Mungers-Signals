@@ -17,8 +17,9 @@ class MainWindow(QMainWindow):
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         self.setWindowIcon(QIcon("gui/icon/logo.ico"))
 
+        # Window title and inital position / size of GUI
         self.setWindowTitle("Munger's Stock Advisor")
-        self.setGeometry(100, 100, 400, 300)
+        self.setGeometry(100, 100, 400, 300) # x, y, width, height
 
         # Initialize option selected variable
         self.option_selected = -1

@@ -251,11 +251,18 @@ def manage_option_one():
         ai_analysis(stock_code)
     
     driver.quit()
-    option = run_main_window()
-    display_options(option)
+    display_options()
     
+def run_win_gui():
+    from gui.main_gui import run_main_window
+    option = run_main_window()
+
+    return option 
+
 # Method to display options to the user 
-def display_options(option):
+def display_options():
+    option = run_win_gui()
+
     print("====================================================================")
     print("                Welcome to Munger's Stock Advisor!                  ")
     print("                  Written by Brian Munger, 2025                     ")     
@@ -263,25 +270,21 @@ def display_options(option):
     print("                           Options:                                 ")
     print("                   1. AI Buy / Sell / Hold                          ")
     print("                   2. Train AI Model                                ")                               
-    print("                   3. Exit                                          ")     
+    print("                   3. Exit                                          ")
+    print(f"\n                      Option selected: {option}                  ")     
     print("====================================================================")
 
     # Gather user input for their mode choice
-    gather_mode_input(option)
+    manage_input_option(option)
 
 # Method to gather user input for the mode they want
-def gather_mode_input(input_choice):
-    from gui.main_gui import run_main_window
-    option = run_main_window()
-    display_options(option)
-    print(f"\nOption selected: {input_choice}")
-
-    if input_choice == 1:
+def manage_input_option(option):
+    if option == 1:
         manage_option_one()
-    elif input_choice == 2:
+    elif option == 2:
         from gui.train_gui import manage_option_two
         manage_option_two()
-    elif input_choice == 3:
+    elif option == 3:
         print("\nGoodbye!\n")
     else:
         print("ERROR: Invalid option selected.\n")
@@ -290,4 +293,4 @@ def gather_mode_input(input_choice):
 # Call main function
 if __name__ == "__main__":
     print("")
-    gather_mode_input()
+    display_options()
