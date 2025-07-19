@@ -112,8 +112,8 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Selection", "Please select an option before submitting.")
             return
 
-        # Quit the app event loop to return the selected option
-        QApplication.quit()
+        # Close the current window
+        self.close() 
 
     def show_disclaimer(self):
         QMessageBox.information(self, "Disclaimer", "")
@@ -123,9 +123,6 @@ class MainWindow(QMainWindow):
 
 # Main method for running the title / into GUI window
 def run_main_window():
-    app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    app.exec()  # Blocks the rest of the code from running until QApplication.quit() is called in handle_submit()
-    
-    return window.option_selected
+    return window

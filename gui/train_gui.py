@@ -6,8 +6,6 @@ from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
 import ctypes
 import sys
-import csv
-import os
 
 # Import functions from stock_tracker.py, trends.py, and ai_train.py
 from stock_tracker import rm_reports, load_stock_list, init_webdriver, get_stock_data_with_retry
@@ -95,9 +93,6 @@ class TrainWindow(QMainWindow):
 
 # Function for managing the second option. Logic located in this file to update the GUI
 def manage_option_two():
-    app = QApplication(sys.argv)
     window = TrainWindow()
     window.show()
-    app.exec()
-
-    return window.result
+    return window

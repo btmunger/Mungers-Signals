@@ -8,12 +8,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from datetime import datetime
+import sys
 from sys import platform
+import csv
+import os
 import time
 import urllib3
 
+from PySide6.QtWidgets import QApplication
 from trends import get_trend_report
 from ai_analysis import ai_analysis
+from gui.main_gui import run_main_window
 
 # Retrieve operating sys specific path
 def path_from_os():
@@ -203,7 +208,7 @@ def get_stock_data(driver, stock_code, mode):
         if mode == 1:
             print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
                     " Enter a valid stock code and try again.\n")
-            display_options()
+            main()
         elif mode == 2:
             print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
                     " Skipping for now...\n")
@@ -220,6 +225,21 @@ def get_stock_code():
     else: 
         return stock_code
     
+# Method for loading the saved stock codes from the .csv file
+def load_stock_list():
+    with open("train_stock_list.csv", "r") as file:
+        reader = csv.reader(file)
+        stock_list = next(reader)
+        #print(stock_list)
+
+    return stock_list
+
+# Method for removing prevously generated trend reports
+def rm_reports():
+    for item_name in os.listdir("trend_reports/"):
+        item_path = os.path.join("trend_reports/", item_name)
+        os.remove(item_path)
+    
 # Method for calling the necessary functions for getting the stock analysis 
 def manage_option_one():
     stock_code = get_stock_code()
@@ -233,18 +253,10 @@ def manage_option_one():
         ai_analysis(stock_code)
     
     driver.quit()
-    display_options()
-    
-def run_win_gui():
-    from gui.main_gui import run_main_window
-    option = run_main_window()
+    main()
 
-    return option 
-
-# Method to display options to the user 
-def display_options():
-    option = run_win_gui()
-
+# Method to display options to the terminal 
+def display_option_terminal(option):
     print("====================================================================")
     print("                Welcome to Munger's Stock Advisor!                  ")
     print("                  Written by Brian Munger, 2025                     ")     
@@ -256,23 +268,29 @@ def display_options():
     print(f"\n                      Option selected: {option}                  ")     
     print("====================================================================")
 
-    # Gather user input for their mode choice
-    manage_input_option(option)
+# Main method for handling the different GUIs while calling helper functions 
+def main(): 
+    app = QApplication(sys.argv)
 
-# Method to gather user input for the mode they want
-def manage_input_option(option):
+    main_window = run_main_window()
+
+    app.exec()
+    option = main_window.option_selected
+    display_option_terminal(option)
+
+    # Option 1 -> AI recommendation 
     if option == 1:
         manage_option_one()
+    # Option 2 -> Train AI
     elif option == 2:
         from gui.train_gui import manage_option_two
         manage_option_two()
+        app.exec()
+    # Option 3 -> Quit / Exit
     elif option == 3:
         print("\nGoodbye!\n")
-    else:
-        print("ERROR: Invalid option selected.\n")
-        return
 
 # Call main function
 if __name__ == "__main__":
     print("")
-    display_options()
+    main()
