@@ -87,18 +87,21 @@ class TrainWindow(QMainWindow):
         )
         self.status_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.status_label)
+        layout.addSpacing(100)
 
         # Progress bar widget
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
-        layout.addWidget(self.progress_bar)
+        self.progress_bar.setFixedWidth(300)
+        layout.addWidget(self.progress_bar, alignment=Qt.AlignCenter)
 
         # Time remaining widget
         self.time_remaining = QLabel()
         self.time_remaining.setText("Around 0 minutes remaining")
         self.time_remaining.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.time_remaining)
+        layout.addSpacing(100)
 
         # Cancel button
         self.cancel_button = QPushButton("Cancel")
