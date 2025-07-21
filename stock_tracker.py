@@ -284,7 +284,8 @@ def main():
     # Option 2 -> Train AI
     elif option == 2:
         from gui.train_gui import manage_option_two
-        manage_option_two()
+        window = manage_option_two()
+        window.show()
         app.exec()
     # Option 3 -> Quit / Exit
     elif option == 3:

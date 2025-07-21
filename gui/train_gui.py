@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QRadioButton, QPushButton, QMessageBox, 
-    QButtonGroup, QHBoxLayout, QSizePolicy
+    QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QMessageBox, 
+    QButtonGroup, QHBoxLayout, QSizePolicy, QProgressBar
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
 import ctypes
+import time
 import sys
 
 # Import functions from stock_tracker.py, trends.py, and ai_train.py
@@ -15,6 +16,7 @@ from ai_train import train_main
 # Class for running the training 
 class TrainLogic(QThread):
     progress_updated = Signal(int, int)
+    updated_time_rem = Signal(int, )
     finished = Signal()
 
     # Method for calling the necessary functions for training the AI model
@@ -25,17 +27,28 @@ class TrainLogic(QThread):
         driver = init_webdriver()
 
         completed = 0
+        time_arr = []
         total = len(stock_list)
 
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
+            start_time = time.perf_counter()
+
             # Redirects to stock_tracker.py
             stock_data = get_stock_data_with_retry(driver, stock_code, 2)
             if stock_data != None:
                 # Redirects to trends.py
                 get_trend_report(stock_code, stock_data)
-                completed += 1
-                self.progress_updated.emit(completed, total)
+
+            # Update progress bar
+            completed += 1
+            self.progress_updated.emit(completed, total)
+
+            # Update the time remaining text
+            end_time = time.perf_counter()
+            time_arr.append(end_time-start_time)
+            avg_time = sum(time_arr) / len(time_arr)
+            self.updated_time_rem.emit(avg_time * (total - completed)) # total - completed = remaining stock reports to generate
 
         # Redirects to ai_train.py
         train_main()
@@ -62,31 +75,59 @@ class TrainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
 
-        self.status_label = QLabel("Starting training...")
+        # GUI window title / subtitle 
+        self.status_label = QLabel()
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            "Gathering Stock Reports For Training"
+            "</div>"
+            "<div style='font-size:16px; font-style:italic; color:gray; line-height:1.0;'>"
+            "This may take a while..."
+            "</div>"
+        )
         self.status_label.setAlignment(Qt.AlignCenter)
-        self.status_label.setStyleSheet("font-size: 16px;")
         layout.addWidget(self.status_label)
 
-        self.progress_label = QLabel("Progress: 0 / 0")
-        self.progress_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.progress_label)
+        # Progress bar widget
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+        layout.addWidget(self.progress_bar)
 
+        # Time remaining widget
+        self.time_remaining = QLabel()
+        self.time_remaining.setText("Around 0 minutes remaining")
+        self.time_remaining.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.time_remaining)
+
+        # Cancel button
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.close)
-        layout.addWidget(self.cancel_button)
+        self.cancel_button.setMaximumWidth(100)
+        layout.addWidget(self.cancel_button, alignment=Qt.AlignCenter)
 
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+        # Create and start thread 
         self.thread = TrainLogic()
         self.thread.progress_updated.connect(self.update_progress)
+        self.thread.updated_time_rem.connect(self.update_time_rem)
         self.thread.finished.connect(self.training_complete)
         self.thread.start()
 
+    # Method for updating the progress bar
     def update_progress(self, completed, total): 
-        self.progress_label.setText(f"Progress: {completed} / {total}")
-        self.status_label.setText(f"Saving trend report {completed} of {total}...")
+        # Determine the progress by dividing completed reports by total
+        progress = round((completed / total) * 100, 2)
+        print(f"{progress}% done")
+        self.progress_bar.setValue(progress)
+
+    # Method for updating the time remaining text
+    def update_time_rem(self, avg_time):
+        avg_time_mins = round(avg_time / 60 )
+        self.time_remaining.setText(f"Around {avg_time_mins} minutes remaining")
         
     def training_complete(self):
         self.status_label.setText("Training complete.")
