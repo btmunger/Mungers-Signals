@@ -50,9 +50,12 @@ class TrainLogic(QThread):
             avg_time = sum(time_arr) / len(time_arr)
             self.updated_time_rem.emit(avg_time * (total - completed)) # total - completed = remaining stock reports to generate
 
+        # Cleanup driver, switch GUI text
+        driver.quit()
+        self.progress_updated.emit
+
         # Redirects to ai_train.py
         train_main()
-        driver.quit()
         self.finished.emit()
 
 # Class for GUI train window (option 2)
@@ -117,7 +120,7 @@ class TrainWindow(QMainWindow):
         self.thread = TrainLogic()
         self.thread.progress_updated.connect(self.update_progress)
         self.thread.updated_time_rem.connect(self.update_time_rem)
-        self.thread.finished.connect(self.training_complete)
+        self.thread.finished.connect(self.report_complete)
         self.thread.start()
 
     # Method for updating the progress bar
@@ -132,8 +135,17 @@ class TrainWindow(QMainWindow):
         avg_time_mins = round(avg_time / 60 )
         self.time_remaining.setText(f"Around {avg_time_mins} minutes remaining")
         
-    def training_complete(self):
-        self.status_label.setText("Training complete.")
+    # Method for hiding certain widgets when report gathering is complete
+    def report_complete(self):
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            "Reports gathered, training model now..."
+            "</div>"
+        )
+
+        # Hide progress bar and time remaining text
+        self.progress_bar.hide()
+        self.time_remaining.hide()
 
 # Function for managing the second option. Logic located in this file to update the GUI
 def manage_option_two():
