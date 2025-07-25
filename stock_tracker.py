@@ -213,17 +213,6 @@ def get_stock_data(driver, stock_code, mode):
             print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
                     " Skipping for now...\n")
             return None
-
-# Method for getting the desired stock code to check from user
-def get_stock_code():
-    stock_code = input("\nEnter the stock code you would like analyzed: ")
-
-    # Ensure code with correct length is entered
-    if len(stock_code) < 1 or len(stock_code) > 5:
-        print("\nInvalid stock code entered. Please enter a valid stock code.")
-        return get_stock_code()
-    else: 
-        return stock_code
     
 # Method for loading the saved stock codes from the .csv file
 def load_stock_list():
@@ -239,21 +228,6 @@ def rm_reports():
     for item_name in os.listdir("trend_reports/"):
         item_path = os.path.join("trend_reports/", item_name)
         os.remove(item_path)
-    
-# Method for calling the necessary functions for getting the stock analysis 
-def manage_option_one():
-    stock_code = get_stock_code()
-    driver = init_webdriver()
-    stock_data = get_stock_data_with_retry(driver, stock_code, 1)
-
-    # Do not attempt if no stock data is returned
-    if stock_data != None:
-        # Redirects to trends.py, then ai_analysis.py
-        get_trend_report(stock_code, stock_data)
-        ai_analysis(stock_code)
-    
-    driver.quit()
-    main()
 
 # Method to display options to the terminal 
 def display_option_terminal(option):
@@ -280,7 +254,10 @@ def main():
 
     # Option 1 -> AI recommendation 
     if option == 1:
-        manage_option_one()
+        from gui.analysis_gui import manage_option_one
+        window = manage_option_one()
+        window.show()
+        app.exec()
     # Option 2 -> Train AI
     elif option == 2:
         from gui.train_gui import manage_option_two

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QMessageBox, 
-    QButtonGroup, QHBoxLayout, QSizePolicy, QProgressBar
+    QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton,  
+    QProgressBar
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
@@ -16,7 +16,7 @@ from ai_train import train_main
 # Class for running the training 
 class TrainLogic(QThread):
     progress_updated = Signal(int, int)
-    updated_time_rem = Signal(int, )
+    updated_time_rem = Signal(int)
     finished = Signal()
 
     # Method for calling the necessary functions for training the AI model
@@ -147,7 +147,7 @@ class TrainWindow(QMainWindow):
         self.progress_bar.hide()
         self.time_remaining.hide()
 
-# Function for managing the second option. Logic located in this file to update the GUI
+# Function for managing the second option
 def manage_option_two():
     window = TrainWindow()
     window.show()
