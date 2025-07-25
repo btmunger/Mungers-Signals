@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-from datetime import datetime
 import os
 
 entries_num = 0

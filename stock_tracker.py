@@ -7,7 +7,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from datetime import datetime
 import sys
 from sys import platform
 import csv
@@ -16,8 +15,6 @@ import time
 import urllib3
 
 from PySide6.QtWidgets import QApplication
-from trends import get_trend_report
-from ai_analysis import ai_analysis
 from gui.main_gui import run_main_window
 
 # Retrieve operating sys specific path

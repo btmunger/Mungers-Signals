@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-import os
 from datetime import datetime
 
 trained_model_name = "trained_stock_model.pkl"

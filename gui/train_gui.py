@@ -6,7 +6,6 @@ from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
 import ctypes
 import time
-import sys
 
 # Import functions from stock_tracker.py, trends.py, and ai_train.py
 from stock_tracker import rm_reports, load_stock_list, init_webdriver, get_stock_data_with_retry

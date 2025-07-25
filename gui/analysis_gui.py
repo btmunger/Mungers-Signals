@@ -1,12 +1,10 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QMessageBox, 
+    QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QMessageBox, 
     QLineEdit
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
 import ctypes
-import time
-import sys
 
 # Import functions from stock_tracker.py and ai_analysis.py
 from stock_tracker import init_webdriver, get_stock_data_with_retry
