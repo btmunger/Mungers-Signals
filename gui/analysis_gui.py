@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QMessageBox, 
-    QLineEdit
+    QLineEdit, QProgressBar
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QIcon
@@ -13,7 +13,8 @@ from ai_analysis import ai_analysis
 
 # Class for running the analysis 
 class AnalysisLogic(QThread):
-    update_loading = Signal()
+    ai_deciding = Signal()
+    finished_analysis = Signal(str)
 
     # Create the thread while saving the stock_code
     def __init__(self, stock_code):
@@ -30,9 +31,12 @@ class AnalysisLogic(QThread):
         if stock_data != None:
             # Redirects to trends.py, then ai_analysis.py
             get_trend_report(self.stock_code, stock_data)
+            self.ai_deciding.emit()
             decision = ai_analysis(self.stock_code)
         
         driver.quit()
+        print("decision", decision)
+        self.finished_analysis.emit(decision)
 
 # Class for GUI analysis window (option 1)
 class AnalysisWindow(QMainWindow):
@@ -48,11 +52,9 @@ class AnalysisWindow(QMainWindow):
         self.setWindowTitle("Munger's Stock Advisor")
         self.setGeometry(100, 100, 400, 300)
 
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
+        self.layout = QVBoxLayout()
 
         # GUI window title / subtitle 
-        self.status_label = QLabel()
         self.status_label = QLabel()
         self.status_label.setText(
             "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
@@ -63,41 +65,87 @@ class AnalysisWindow(QMainWindow):
             "</div>"
         )
         self.status_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.status_label)
-        layout.addSpacing(100)
+        self.layout.addWidget(self.status_label)
+        self.layout.addSpacing(20)
 
         # Enter stock code text box widget
         self.input_box = QLineEdit()
         self.input_box.setPlaceholderText("e.g. NVDA")
         self.input_box.setFixedWidth(200)
         self.input_box.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.input_box, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.input_box, alignment=Qt.AlignCenter)
 
         # Analyze button
         self.analyze_button = QPushButton("Analyze")
         self.analyze_button.clicked.connect(self.get_stock_code)
-        layout.addWidget(self.analyze_button, alignment=Qt.AlignCenter)
-        layout.addSpacing(20)
+        self.layout.addWidget(self.analyze_button, alignment=Qt.AlignCenter)
+        self.layout.addSpacing(20)
 
         container = QWidget()
-        container.setLayout(layout)
+        container.setLayout(self.layout)
         self.setCentralWidget(container)
 
+    # Method for getting the user entered stock code from the text box
     def get_stock_code(self):
-        stock_code = self.input_box.text().strip().upper()
+        self.stock_code = self.input_box.text().strip().upper()
 
-        if not stock_code or len(stock_code) > 5:
+        # Check to see if the stock code is the proper length
+        if not self.stock_code or len(self.stock_code) > 5:
             QMessageBox.warning(self, "Input Error", "Please enter a valid stock code.")
             return
-        
         self.analyze_button.setEnabled(False)
 
+        # Edit title text and remove button/text field
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            f"Gathering Stock Data For {self.stock_code}"
+            "</div>"
+            "<div style='font-size:16px; font-style:italic; color:gray; line-height:1.0;'>"
+            "The AI will make a decision based on this data..."
+            "</div>"
+        )
+        self.input_box.setParent(None)
+        self.analyze_button.setParent(None)
+        self.input_box = None
+        self.analyze_button = None
+
+        # Create progress bar
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 0)  
+        self.progress_bar.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.progress_bar)
+        
         # Create and start thread 
-        self.thread = AnalysisLogic(stock_code)
-        self.thread.update_loading.connect(self.update_status)
+        self.thread = AnalysisLogic(self.stock_code)
+        self.thread.ai_deciding.connect(self.update_title_deciding)
         self.thread.finished_analysis.connect(self.analysis_complete)
         self.thread.start()
 
+    # Method for updating the GUI title after the stock data is gathered
+    def update_title_deciding(self):
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            f"Retrieved stock data for {self.stock_code}!"
+            "</div>"
+            "<div style='font-size:16px; font-style:italic; color:gray; line-height:1.0;'>"
+            "Asking our AI model if you should buy, sell, or hold this stock..."
+            "</div>"
+        )
+
+    # Method to display the analysis result
+    def analysis_complete(self, decision):
+        # Edit title text and remove button/text field
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            f"You should {decision} {self.stock_code}."
+            "</div>"
+            "<div style='font-size:16px; font-style:italic; color:gray; line-height:1.0;'>"
+            "Remember - take this advice with a grain of salt!"
+            "</div>"
+        )
+        self.progress_bar.setParent(None)
+        self.progress_bar = None
+        
 # Function for managing the first option
 def manage_option_one():
     window = AnalysisWindow()

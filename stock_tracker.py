@@ -241,10 +241,9 @@ def display_option_terminal(option):
 
 # Main method for handling the different GUIs while calling helper functions 
 def main(): 
+    # Start the GUI
     app = QApplication(sys.argv)
-
     main_window = run_main_window()
-
     app.exec()
     option = main_window.option_selected
     display_option_terminal(option)

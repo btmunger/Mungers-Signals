@@ -1,4 +1,5 @@
 import json
+import os
 import pandas as pd
 from datetime import datetime
 
@@ -71,6 +72,8 @@ def analyze_stock(data_frame, stock_code):
 
     print(f"\nPrediction for {stock_code}: {predicted_label.upper()}\n")
 
+    return predicted_label.upper()
+
 # Main method for the AI analysis portion of the project
 def ai_analysis(stock_code):
     entry = load_json(stock_code)
@@ -81,7 +84,7 @@ def ai_analysis(stock_code):
     data_frame["headline_sentiment.headline_1"] = data_frame["headline_sentiment.headline_1"].map({"positive": 1, "neutral": 0, "negative": -1})
     data_frame["headline_sentiment.headline_2"] = data_frame["headline_sentiment.headline_2"].map({"positive": 1, "neutral": 0, "negative": -1})
 
-    analyze_stock(data_frame, stock_code)
+    return analyze_stock(data_frame, stock_code)
 
 if __name__ == "__main__":
     stock_code = input("Enter stock code to analyze with last report: ")
