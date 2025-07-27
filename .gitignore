@@ -1,5 +1,3 @@
 chromedriver-win64/
 trend_reports/
 __pycache__/
-shell.sh
-connection_code_save.py
