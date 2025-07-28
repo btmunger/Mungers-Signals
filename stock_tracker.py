@@ -113,12 +113,12 @@ def get_stock_news(driver, stock_code):
 
 # Method to attempt to fix connection error
 # Reference for the urllib3 library: https://urllib3.readthedocs.io/en/1.26.9/reference/urllib3.exceptions.html
-def get_stock_data_with_retry(driver, stock_code, mode):
+def get_stock_data_with_retry(driver, stock_code):
     retries = 3
 
     for attempt in range(retries):
         try:
-            return get_stock_data(driver, stock_code, mode)
+            return get_stock_data(driver, stock_code)
         # Print protocol error, small wait before retrying
         except urllib3.exceptions.ProtocolError as e:
             print(f"ProtocolError on attempt {attempt+1}: {e}")
@@ -132,7 +132,7 @@ def get_stock_data_with_retry(driver, stock_code, mode):
     return None
 
 # Method to get stock data over the past month for close, high, low, 
-def get_stock_data(driver, stock_code, mode):
+def get_stock_data(driver, stock_code):
     # Initalize driver, navigate to Yahoo Finance to get price data
     print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data...")
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/history/"
@@ -202,14 +202,8 @@ def get_stock_data(driver, stock_code, mode):
         return stock_data
     # No stock with the provided code exists
     except IndexError:
-        if mode == 1:
-            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
-                    " Enter a valid stock code and try again.\n")
-            main()
-        elif mode == 2:
-            print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured)." + 
-                    " Skipping for now...\n")
-            return None
+        print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database (or some other error occured).\n")
+        return None
     
 # Method for loading the saved stock codes from the .csv file
 def load_stock_list():
@@ -239,10 +233,9 @@ def display_option_terminal(option):
     print(f"\n                      Option selected: {option}                  ")     
     print("====================================================================")
 
-# Main method for handling the different GUIs while calling helper functions 
-def main(): 
-    # Start the GUI
-    app = QApplication(sys.argv)
+# Method for running the different GUI windows
+def run_gui(app):
+    # Start main window
     main_window = run_main_window()
     app.exec()
     option = main_window.option_selected
@@ -254,12 +247,14 @@ def main():
         window = manage_option_one()
         window.show()
         app.exec()
+        run_gui(app)
     # Option 2 -> Train AI
     elif option == 2:
         from gui.train_gui import manage_option_two
         window = manage_option_two()
         window.show()
         app.exec()
+        run_gui(app)
     # Option 3 -> Quit / Exit
     elif option == 3:
         print("\nGoodbye!\n")
@@ -267,4 +262,6 @@ def main():
 # Call main function
 if __name__ == "__main__":
     print("")
-    main()
+    # Start GUI
+    app = QApplication(sys.argv)
+    run_gui(app)

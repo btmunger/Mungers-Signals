@@ -34,7 +34,7 @@ class TrainLogic(QThread):
             start_time = time.perf_counter()
 
             # Redirects to stock_tracker.py
-            stock_data = get_stock_data_with_retry(driver, stock_code, 2)
+            stock_data = get_stock_data_with_retry(driver, stock_code)
             if stock_data != None:
                 # Redirects to trends.py
                 get_trend_report(stock_code, stock_data)

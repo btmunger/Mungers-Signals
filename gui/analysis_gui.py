@@ -13,6 +13,7 @@ from ai_analysis import ai_analysis
 
 # Class for running the analysis 
 class AnalysisLogic(QThread):
+    no_stock = Signal()
     ai_deciding = Signal()
     finished_analysis = Signal(str)
 
@@ -25,7 +26,11 @@ class AnalysisLogic(QThread):
     def run(self):
         # Method for calling the necessary functions for gathering the AI analysis
         driver = init_webdriver()
-        stock_data = get_stock_data_with_retry(driver, self.stock_code, 1)
+        stock_data = get_stock_data_with_retry(driver, self.stock_code)
+
+        if stock_data == None: 
+            self.no_stock.emit()
+            return
 
         # Do not attempt if no stock data is returned
         if stock_data != None:
@@ -35,7 +40,6 @@ class AnalysisLogic(QThread):
             decision = ai_analysis(self.stock_code)
         
         driver.quit()
-        print("decision", decision)
         self.finished_analysis.emit(decision)
 
 # Class for GUI analysis window (option 1)
@@ -117,9 +121,37 @@ class AnalysisWindow(QMainWindow):
         
         # Create and start thread 
         self.thread = AnalysisLogic(self.stock_code)
+        self.thread.no_stock.connect(self.no_stock_error)
         self.thread.ai_deciding.connect(self.update_title_deciding)
         self.thread.finished_analysis.connect(self.analysis_complete)
         self.thread.start()
+
+    # Method for displaying an error when the requested stock is not found
+    def no_stock_error(self):
+        # Edit title text to display error, hide progress bar
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            f"{self.stock_code} not found in Yahoo Finance's database"
+            "</div>"
+            "<div style='font-size:16px; font-style:italic; color:gray; line-height:1.0;'>"
+            "Try again with a valid stock code:"
+            "</div>"
+        )
+        self.progress_bar.setParent(None)
+        self.progress_bar = None
+
+        # Input box
+        self.input_box = QLineEdit()
+        self.input_box.setPlaceholderText("e.g. NVDA")
+        self.input_box.setFixedWidth(200)
+        self.input_box.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.input_box, alignment=Qt.AlignCenter)
+
+        # Analyze button
+        self.analyze_button = QPushButton("Analyze")
+        self.analyze_button.clicked.connect(self.get_stock_code)
+        self.layout.addWidget(self.analyze_button, alignment=Qt.AlignCenter)
+        self.layout.addSpacing(20)
 
     # Method for updating the GUI title after the stock data is gathered
     def update_title_deciding(self):
@@ -145,6 +177,16 @@ class AnalysisWindow(QMainWindow):
         )
         self.progress_bar.setParent(None)
         self.progress_bar = None
+
+        # Return home button
+        self.return_home = QPushButton("Done")
+        self.return_home.clicked.connect(self.close_window)
+        self.layout.addWidget(self.return_home, alignment=Qt.AlignCenter)
+        self.layout.addSpacing(20)
+
+    def close_window(self):
+        self.return_home.setEnabled(False)
+        self.close()
         
 # Function for managing the first option
 def manage_option_one():
