@@ -53,7 +53,7 @@ class AnalysisWindow(QMainWindow):
         self.setWindowIcon(QIcon("gui/icon/logo.ico"))
 
         # Window title and inital position / size of GUI
-        self.setWindowTitle("Munger's Stock Advisor")
+        self.setWindowTitle("Munger's Signals")
         self.setGeometry(100, 100, 400, 300)
 
         self.layout = QVBoxLayout()

@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("gui/icon/logo.ico"))
 
         # Window title and inital position / size of GUI
-        self.setWindowTitle("Munger's Stock Advisor")
+        self.setWindowTitle("Munger's Signals")
         self.setGeometry(100, 100, 400, 300) # x, y, width, height
 
         # Initialize option selected variable
@@ -36,10 +36,10 @@ class MainWindow(QMainWindow):
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setText(
             "<div style='font-size:24px; font-weight:bold; line-height:1.0;'>"
-            "Welcome to Munger's Stock Advisor!"
+            "Welcome to Munger's Signals!"
             "</div>"
             "<div style='font-size:16px; font-style:italic; color:gray; line-height:1.0;'>"
-            "Written by Brian Munger, 2025"
+            "Your AI Day Trading Buddy!"
             "</div>"
         )
         title_layout.addWidget(title_label)

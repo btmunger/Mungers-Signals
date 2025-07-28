@@ -223,7 +223,7 @@ def rm_reports():
 # Method to display options to the terminal 
 def display_option_terminal(option):
     print("====================================================================")
-    print("                Welcome to Munger's Stock Advisor!                  ")
+    print("                   Welcome to Munger's Signals!                     ")
     print("                  Written by Brian Munger, 2025                     ")     
     print("                                                                    ")            
     print("                           Options:                                 ")
