@@ -8,7 +8,7 @@ import ctypes
 import time
 
 # Import functions from stock_tracker.py, trends.py, and ai_train.py
-from stock_tracker import rm_reports, load_stock_list, init_webdriver, get_stock_data_with_retry
+from main import rm_reports, load_stock_list, init_webdriver, get_stock_data_with_retry
 from trends import get_trend_report
 from ai_train import train_main
 
