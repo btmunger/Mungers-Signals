@@ -216,6 +216,11 @@ def load_stock_list():
 
 # Method for removing prevously generated trend reports
 def rm_reports():
+    # Create directory if this is first time running
+    if not os.path.isdir("trend_reports/"):
+        os.mkdir("trend_reports/")
+
+    # Loop through and remove existing reports
     for item_name in os.listdir("trend_reports/"):
         item_path = os.path.join("trend_reports/", item_name)
         os.remove(item_path)

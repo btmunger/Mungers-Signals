@@ -157,12 +157,13 @@ def train_model(data_frame):
 
     # **Train/test split**
     # test_size: controls how much of the data is used for testing (instead of training)
-    # .20 would indicate 20% of data for testing, 80% of data for training
+    #   .20 would indicate 20% of data for testing, 80% of data for training
     # random_state: seed number for random shuffling of data before splitting
-    # set this to get the same split every time
+    #   set this to get the same split every time
+    # stratify: ensures that the original class proportions (buy, sell, hold) are preserved
     x_train, x_test, y_train, y_test = train_test_split(
         x_features, y_features, test_size=0.2, random_state=42, stratify=y_features
-        )
+    )
     
     # Random forest classifier (to improve predicition accuracy)
     # Works by training multiple decision trees on random subsets of features listed above

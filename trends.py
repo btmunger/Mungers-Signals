@@ -170,7 +170,7 @@ def write_trend_json(stock_code, trend_report):
     new_entry = get_entry(stock_code, trend_report)
     json_name = fr"trend_reports/{stock_code}_reports.json"
 
-    # If the trends report directory does not exist, create it
+    # Create directory if this is first time running
     if not os.path.exists("trend_reports"):
         os.makedirs("trend_reports")
 
