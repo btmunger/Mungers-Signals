@@ -260,9 +260,8 @@ def run_gui(app):
         window.show()
         app.exec()
         run_gui(app)
-    # Option 3 -> Quit / Exit
-    elif option == 3:
-        print("\nGoodbye!\n")
+    elif option == -1:
+        print("\nUser closed the application. Bye!\n")
 
 # Call main function
 if __name__ == "__main__":
