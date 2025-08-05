@@ -58,7 +58,6 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(label_select)
         options_layout.addWidget(self.radio_buy_sell)
         options_layout.addWidget(self.radio_train)
-        options_layout.addWidget(self.radio_exit)
         main_layout.addLayout(options_layout)
         # Select button 
         select_btn = QPushButton("Select")
@@ -105,8 +104,6 @@ class MainWindow(QMainWindow):
             self.option_selected = 1
         elif self.radio_train.isChecked():
             self.option_selected = 2
-        elif self.radio_exit.isChecked():
-            self.option_selected = 3
         else:
             QMessageBox.warning(self, "No Selection", "Please select an option before submitting.")
             return
