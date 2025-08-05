@@ -14,7 +14,7 @@ from ai_train import train_main
 
 # Class for running the training 
 class TrainLogic(QThread):
-    start = Signal(int)
+    start_time = Signal(int)
     progress_updated = Signal(int, int)
     updated_time_rem = Signal(int)
     finished = Signal()
@@ -35,7 +35,7 @@ class TrainLogic(QThread):
         time_arr = []
         total = len(stock_list)
 
-        self.start.emit(5)
+        self.start_time.emit(5)
 
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
@@ -54,7 +54,6 @@ class TrainLogic(QThread):
 
                 # Update the time remaining text
                 end_time = time.perf_counter()
-                print(end_time-start_time)
                 time_arr.append(end_time-start_time)
                 avg_time = sum(time_arr) / len(time_arr)
                 self.updated_time_rem.emit(avg_time * (total - completed)) # total - completed = remaining stock reports to generate
@@ -135,22 +134,20 @@ class TrainWindow(QMainWindow):
 
         # Create and start thread 
         self.thread = TrainLogic()
-        self.thread.start(self.init_time_rem)
+        self.thread.start_time.connect(self.init_time_rem)
         self.thread.progress_updated.connect(self.update_progress)
         self.thread.updated_time_rem.connect(self.update_time_rem)
         self.thread.finished.connect(self.report_complete)
         self.thread.start()
 
-<<<<<<< HEAD
     # Method for setting the time remaining when the training starts
     def init_time_rem(self, time_rem):
         self.time_remaining.setText(f"{time_rem} minutes remaining")
-=======
+
     # Method for ending the training process when the user presses the cancel button
     def stop_training(self):
        self.thread.stop()
        self.close()
->>>>>>> bbb5219f95fbe33ce960d0a885ac3662d2838dbb
 
     # Method for updating the progress bar
     def update_progress(self, completed, total): 
