@@ -18,6 +18,11 @@ class TrainLogic(QThread):
     updated_time_rem = Signal(int)
     finished = Signal()
 
+    # Create the thread and initalize the continue_train variable
+    def __init__(self):
+        super().__init__()
+        self.continue_train = True
+
     # Method for calling the necessary functions for training the AI model
     def run(self):
         # Following three function calls redirect to stock_tracker.py
@@ -31,31 +36,40 @@ class TrainLogic(QThread):
 
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
-            start_time = time.perf_counter()
+            if self.continue_train:
+                start_time = time.perf_counter()
 
-            # Redirects to stock_tracker.py
-            stock_data = get_stock_data_with_retry(driver, stock_code)
-            if stock_data != None:
-                # Redirects to trends.py
-                get_trend_report(stock_code, stock_data)
+                # Redirects to stock_tracker.py
+                stock_data = get_stock_data_with_retry(driver, stock_code)
+                if stock_data != None:
+                    # Redirects to trends.py
+                    get_trend_report(stock_code, stock_data)
 
-            # Update progress bar
-            completed += 1
-            self.progress_updated.emit(completed, total)
+                # Update progress bar
+                completed += 1
+                self.progress_updated.emit(completed, total)
 
-            # Update the time remaining text
-            end_time = time.perf_counter()
-            time_arr.append(end_time-start_time)
-            avg_time = sum(time_arr) / len(time_arr)
-            self.updated_time_rem.emit(avg_time * (total - completed)) # total - completed = remaining stock reports to generate
+                # Update the time remaining text
+                end_time = time.perf_counter()
+                time_arr.append(end_time-start_time)
+                avg_time = sum(time_arr) / len(time_arr)
+                self.updated_time_rem.emit(avg_time * (total - completed)) # total - completed = remaining stock reports to generate
+            else:
+                print("\nTraining canceled by user, returning to main GUI...\n")
+                break
 
         # Cleanup driver, switch GUI text
         driver.quit()
         self.progress_updated.emit
 
-        # Redirects to ai_train.py
-        train_main()
-        self.finished.emit()
+        if self.continue_train:
+            # Redirects to ai_train.py
+            train_main()
+            self.finished.emit()
+
+    # Stop the training
+    def stop(self):
+        self.continue_train = False
 
 # Class for GUI train window (option 2)
 class TrainWindow(QMainWindow):
@@ -107,7 +121,7 @@ class TrainWindow(QMainWindow):
 
         # Cancel button
         self.cancel_button = QPushButton("Cancel")
-        self.cancel_button.clicked.connect(self.close)
+        self.cancel_button.clicked.connect(self.stop_training)
         self.cancel_button.setMaximumWidth(100)
         layout.addWidget(self.cancel_button, alignment=Qt.AlignCenter)
 
@@ -121,6 +135,11 @@ class TrainWindow(QMainWindow):
         self.thread.updated_time_rem.connect(self.update_time_rem)
         self.thread.finished.connect(self.report_complete)
         self.thread.start()
+
+    # Method for ending the training process when the user presses the cancel button
+    def stop_training(self):
+       self.thread.stop()
+       self.close()
 
     # Method for updating the progress bar
     def update_progress(self, completed, total): 
