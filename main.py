@@ -153,8 +153,7 @@ def get_stock_data(driver, stock_code):
     # Use helper function to get the table 
     data_entries = get_Yahoo_data_entries(driver)
     if data_entries == None:
-        print(f"\nERROR: Stock code '{stock_code}' not found in Yahoo Finance's Database." + 
-                " Enter a valid stock code and try again.\n")
+        print(f"\nERROR: An error occured while generating a trend report for '{stock_code}'. Skipping for now...\n")
         return None
 
     # Read stock data entries from the last month 
@@ -234,7 +233,6 @@ def display_option_terminal(option):
     print("                           Options:                                 ")
     print("                   1. AI Buy / Sell / Hold                          ")
     print("                   2. Train AI Model                                ")                               
-    print("                   3. Exit                                          ")
     print(f"\n                      Option selected: {option}                  ")     
     print("====================================================================")
 

@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import os
+from datetime import datetime
 
 entries_num = 0
 trained_model_name = "trained_stock_model.pkl"
@@ -116,7 +117,7 @@ def label_entries(processed_entries):
 
     # Label each entry 
     for entry in processed_entries:
-        print(auto_label_entry(entry))
+        #print(auto_label_entry(entry))
         entry["label"] = auto_label_entry(entry)
         entries_num += 1
 
@@ -177,10 +178,20 @@ def train_model(data_frame):
     # Generate predictions from a trained machine model
     y_pred = model.predict(x_test)
     print(classification_report(y_test, y_pred, zero_division=0))
+    
+    # Save result of training to log file
+    time_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    log_name = "train_log/training_result_" + time_stamp + ".txt"
+    with open(log_name, "w") as file:
+        file.write(classification_report(y_test, y_pred, zero_division=0))
+        file.write(f"Model trained on {entries_num} entries, saved as {trained_model_name}")
+        file.close()
 
     # Save model, print success message 
     joblib.dump(model, trained_model_name)
-    print(fr"Model trained on {entries_num} entries, saved as {trained_model_name}")
+    print(f"Model trained on {entries_num} entries, saved as {trained_model_name}")
+
+    return [entries_num, trained_model_name]
 
 # Main method for calling helper functions to train the model
 def train_main():
@@ -194,7 +205,7 @@ def train_main():
         data_frame["headline_sentiment.headline_1"] = data_frame["headline_sentiment.headline_1"].map({"positive": 1, "neutral": 0, "negative": -1})
         data_frame["headline_sentiment.headline_2"] = data_frame["headline_sentiment.headline_2"].map({"positive": 1, "neutral": 0, "negative": -1})
 
-        train_model(data_frame)
+        return train_model(data_frame)
 
 # Access main function
 if __name__ == "__main__":

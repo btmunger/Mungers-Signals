@@ -184,6 +184,7 @@ class AnalysisWindow(QMainWindow):
         self.layout.addWidget(self.return_home, alignment=Qt.AlignCenter)
         self.layout.addSpacing(20)
 
+    # Method for returning to the home screen
     def close_window(self):
         self.return_home.setEnabled(False)
         self.close()

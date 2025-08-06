@@ -35,7 +35,7 @@ class TrainLogic(QThread):
         time_arr = []
         total = len(stock_list)
 
-        self.start_time.emit(5)
+        self.start_time.emit(total * .20)
 
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
@@ -61,13 +61,11 @@ class TrainLogic(QThread):
                 print("\nTraining canceled by user, returning to main GUI...\n")
                 break
 
-        # Cleanup driver, switch GUI text
+        # Cleanup driver
         driver.quit()
-        self.progress_updated.emit
 
+        # Emit signal that reports were generated
         if self.continue_train:
-            # Redirects to ai_train.py
-            train_main()
             self.finished.emit()
 
     # Stop the training
@@ -91,8 +89,8 @@ class TrainWindow(QMainWindow):
         # Initalize result variable for determining if stock reports were successfully gathered
         self.result = 0
 
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
+        self.layout = QVBoxLayout()
+        self.layout.setAlignment(Qt.AlignCenter)
 
         # GUI window title / subtitle 
         self.status_label = QLabel()
@@ -105,31 +103,31 @@ class TrainWindow(QMainWindow):
             "</div>"
         )
         self.status_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.status_label)
-        layout.addSpacing(100)
+        self.layout.addWidget(self.status_label)
+        self.layout.addSpacing(100)
 
         # Progress bar widget
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
         self.progress_bar.setFixedWidth(300)
-        layout.addWidget(self.progress_bar, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.progress_bar, alignment=Qt.AlignCenter)
 
         # Time remaining widget
         self.time_remaining = QLabel()
-        self.time_remaining.setText("Around 0 minutes remaining")
+        self.time_remaining.setText("0 minutes remaining")
         self.time_remaining.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.time_remaining)
-        layout.addSpacing(100)
+        self.layout.addWidget(self.time_remaining)
+        self.layout.addSpacing(100)
 
-        # Cancel button
+        # Cancel button  
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.stop_training)
         self.cancel_button.setMaximumWidth(100)
-        layout.addWidget(self.cancel_button, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.cancel_button, alignment=Qt.AlignCenter)
 
         container = QWidget()
-        container.setLayout(layout)
+        container.setLayout(self.layout)
         self.setCentralWidget(container)
 
         # Create and start thread 
@@ -137,7 +135,8 @@ class TrainWindow(QMainWindow):
         self.thread.start_time.connect(self.init_time_rem)
         self.thread.progress_updated.connect(self.update_progress)
         self.thread.updated_time_rem.connect(self.update_time_rem)
-        self.thread.finished.connect(self.report_complete)
+        self.thread.finished.connect(self.reports_complete)
+        #self.thread.done_training.connect(self.training_complete)
         self.thread.start()
 
     # Method for setting the time remaining when the training starts
@@ -165,16 +164,51 @@ class TrainWindow(QMainWindow):
             self.time_remaining.setText("Less than a minute remaining")
         
     # Method for hiding certain widgets when report gathering is complete
-    def report_complete(self):
+    def reports_complete(self):
         self.status_label.setText(
             "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
             "Reports gathered, training model now..."
             "</div>"
         )
 
-        # Hide progress bar and time remaining text
-        self.progress_bar.hide()
+        # Hide time remaining text
         self.time_remaining.hide()
+
+        # Reset progress bar
+        if self.progress_bar != None:
+            self.progress_bar.setTextVisible(False)
+            self.progress_bar.setRange(0,0)
+
+        # Redirects to ai_train.py
+        output = train_main()
+        self.status_label.setText(
+            "<div style='font-size:20px; font-weight:bold; line-height:1.0;'>"
+            f"AI Model Trained On {output[0]} Entries"
+            "</div>"
+            "<div style='font-size:16px; color:gray; line-height:1.0;'>"
+            f"Model is saved as '{output[1]}'"
+            "</div>"
+        )
+
+        # Remove cancel button and progress bar
+        if self.cancel_button != None:
+            self.cancel_button.setParent(None)
+            self.cancel_button = None
+        if self.progress_bar != None:
+            self.progress_bar.setParent(None)
+            self.progress_bar = None
+
+        # Return home button
+        if not hasattr(self, 'return_home'):
+            self.return_home = QPushButton("Done")
+            self.return_home.clicked.connect(self.close_window)
+            self.layout.addWidget(self.return_home, alignment=Qt.AlignCenter)
+            self.layout.addSpacing(20)
+
+    # Method for returning to the home screen
+    def close_window(self):
+        self.return_home.setEnabled(False)
+        self.close()
 
 # Function for managing the second option
 def manage_option_two():

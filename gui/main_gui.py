@@ -46,9 +46,8 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(title_layout)
 
         # Create radio buttons for options
-        self.radio_buy_sell = QRadioButton("1. AI Buy / Sell / Hold")
-        self.radio_train = QRadioButton("2. Train AI Model")
-        self.radio_exit = QRadioButton("3. Exit")
+        self.radio_buy_sell = QRadioButton("AI Buy / Sell / Hold")
+        self.radio_train = QRadioButton("Train AI Model")
 
         # Center the radio buttons, add title button
         options_layout = QVBoxLayout()
@@ -75,7 +74,6 @@ class MainWindow(QMainWindow):
         self.button_group = QButtonGroup()
         self.button_group.addButton(self.radio_buy_sell)
         self.button_group.addButton(self.radio_train)
-        self.button_group.addButton(self.radio_exit)
 
         # Disclaimer and about buttons
         bottom_buttons_layout = QHBoxLayout()
