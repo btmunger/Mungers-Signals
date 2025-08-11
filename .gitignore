@@ -2,3 +2,4 @@ trend_reports/
 __pycache__/
 temp/
 train_log/
+wrapper.c
