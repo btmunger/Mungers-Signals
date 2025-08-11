@@ -191,6 +191,7 @@ class AnalysisWindow(QMainWindow):
         
 # Function for managing the first option
 def manage_option_one():
+    # Start GUI
     window = AnalysisWindow()
     window.show()
     return window

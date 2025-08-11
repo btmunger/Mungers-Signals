@@ -1,28 +1,18 @@
 # A project by Brian Munger
-from install_libraries import install_libs
-try:
-    from gui.main_gui import run_main_window
-except ModuleNotFoundError:
-    print("\nFirst time running, installing required libraries...\n")
-    install_libs()
-    from gui.main_gui import run_main_window
-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-    
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
+import subprocess
 import sys
 from sys import platform
+
 import csv
 import os
 import time
-import urllib3
 
-from PySide6.QtWidgets import QApplication
+# Method for installing the required libraries
+def install_libraries(app):
+    from gui.install_gui import run_install_window
+    window = run_install_window()
+    window.show()
+    app.exec()
 
 # Retrieve operating sys specific path
 def path_from_os():
@@ -37,8 +27,12 @@ def path_from_os():
         print("\nCould not determine operating system. Using default option of Windows.")
         return "NUL"
 
-# Method for setting up the Selenium Webdriver 
 def init_webdriver(): 
+# Method for setting up the Selenium Webdriver 
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.chrome.options import Options
+
     # Selenium Options, run headless (in background), ignore errors
     options = Options()
     options.add_argument("--headless")          # Comment the next two arguments to have the webdriver run on your screen
@@ -71,6 +65,8 @@ def init_webdriver():
 
 # Method for grabbing the data entries table HTML element
 def get_Yahoo_data_entries(driver):
+    from selenium.webdriver.common.by import By
+
     # "./*" = get the child element(s)
     try:
         table = driver.find_element(By.CSS_SELECTOR, "[data-testid='history-table']")
@@ -87,6 +83,10 @@ def get_Yahoo_data_entries(driver):
 
 # Method to get news headlines regarding a certain stoc
 def get_stock_news(driver, stock_code):
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+
     #Initalize driver, navigate to Yahoo Finance to get headlines
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/"
     driver.get(url)
@@ -121,6 +121,7 @@ def get_stock_news(driver, stock_code):
 # Method to attempt to fix connection error
 # Reference for the urllib3 library: https://urllib3.readthedocs.io/en/1.26.9/reference/urllib3.exceptions.html
 def get_stock_data_with_retry(driver, stock_code):
+    import urllib3
     retries = 3
 
     for attempt in range(retries):
@@ -140,6 +141,8 @@ def get_stock_data_with_retry(driver, stock_code):
 
 # Method to get stock data over the past month for close, high, low, 
 def get_stock_data(driver, stock_code):
+    from selenium.webdriver.common.by import By
+    
     # Initalize driver, navigate to Yahoo Finance to get price data
     print("\n" + fr"Scraping Yahoo Finance for {stock_code} stock data...")
     url = "https://beta.finance.yahoo.com/quote/" + stock_code + "/history/"
@@ -246,7 +249,9 @@ def display_option_terminal(option):
 # Method for running the different GUI windows
 def run_gui(app):
     # Start main window
+    from gui.main_gui import run_main_window
     main_window = run_main_window()
+    main_window.show()
     app.exec()
     option = main_window.option_selected
     display_option_terminal(option)
@@ -268,9 +273,29 @@ def run_gui(app):
     elif option == -1:
         print("\nUser closed the application. Bye!\n")
 
-# Call main function
-if __name__ == "__main__":
+if __name__ == "__main__": 
     print("")
+    libraries_installed = True
+    try:
+        # Attempt import to see if library is installed
+        from PySide6.QtWidgets import QApplication
+    except ImportError:
+        print("First time running, installing required libraries...\n")
+        libraries_installed = False
+
+        # Install PySide6 for GUI
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "PySide6"])
+
+        # Attempt import again
+        from PySide6.QtWidgets import QApplication
+
     # Start GUI
     app = QApplication(sys.argv)
+
+    # Install rest of libraries w/ GUI screen if required
+    if not libraries_installed:
+        install_libraries(app)
+
+    # Ready to run rest of program now...
     run_gui(app)

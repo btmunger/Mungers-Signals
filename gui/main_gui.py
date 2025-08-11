@@ -117,6 +117,7 @@ class MainWindow(QMainWindow):
 
 # Main method for running the title / into GUI window
 def run_main_window():
+    # Start GUI
     window = MainWindow()
     window.show()
     return window

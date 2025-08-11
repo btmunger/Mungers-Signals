@@ -126,6 +126,7 @@ class TrainWindow(QMainWindow):
         self.cancel_button.setMaximumWidth(100)
         self.layout.addWidget(self.cancel_button, alignment=Qt.AlignCenter)
 
+        # Set window
         container = QWidget()
         container.setLayout(self.layout)
         self.setCentralWidget(container)
@@ -136,7 +137,6 @@ class TrainWindow(QMainWindow):
         self.thread.progress_updated.connect(self.update_progress)
         self.thread.updated_time_rem.connect(self.update_time_rem)
         self.thread.finished.connect(self.reports_complete)
-        #self.thread.done_training.connect(self.training_complete)
         self.thread.start()
 
     # Method for setting the time remaining when the training starts
@@ -212,6 +212,7 @@ class TrainWindow(QMainWindow):
 
 # Method for managing the second option
 def manage_option_two():
+    # Start GUI
     window = TrainWindow()
     window.show()
     return window
