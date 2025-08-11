@@ -210,7 +210,7 @@ class TrainWindow(QMainWindow):
         self.return_home.setEnabled(False)
         self.close()
 
-# Function for managing the second option
+# Method for managing the second option
 def manage_option_two():
     window = TrainWindow()
     window.show()

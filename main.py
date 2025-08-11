@@ -1,7 +1,15 @@
 # A project by Brian Munger
+from install_libraries import install_libs
+try:
+    from gui.main_gui import run_main_window
+except ModuleNotFoundError:
+    print("\nFirst time running, installing required libraries...\n")
+    install_libs()
+    from gui.main_gui import run_main_window
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+    
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -15,7 +23,6 @@ import time
 import urllib3
 
 from PySide6.QtWidgets import QApplication
-from gui.main_gui import run_main_window
 
 # Retrieve operating sys specific path
 def path_from_os():
