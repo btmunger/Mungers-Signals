@@ -110,10 +110,14 @@ class MainWindow(QMainWindow):
         self.close() 
 
     def show_disclaimer(self):
-        QMessageBox.information(self, "Disclaimer", "")
+        QMessageBox.information(self, "Disclaimer", "This project is for recreational and educational purposes only and does not constitute " \
+                                "financial advice. The stock market is often unpredictable. Do your own research and consult a qualified financial " \
+                                "professional before making investment decisions!")
 
     def show_about(self):
-        QMessageBox.information(self, "About", "")
+        QMessageBox.information(self, "About", "Munger's Signals is a personal project that combines Selenium, AI, and Python to deliver " \
+                                "advice regarding the stock market. It is designed with short to medium term trading in mind, giving you the " \
+                                "indicator to buy, sell, or hold your requested stock!")
 
 # Main method for running the title / into GUI window
 def run_main_window():
