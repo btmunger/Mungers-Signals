@@ -41,7 +41,7 @@ class TrainLogic(QThread):
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
             if self.continue_train:
-                update_curr_stock.emit(stock_code)
+                self.update_curr_stock.emit(stock_code)
                 start_time = time.perf_counter()
 
                 # Redirects to stock_tracker.py
@@ -117,10 +117,10 @@ class TrainWindow(QMainWindow):
 
         # Current stock widget
         self.current_stock = QLabel()
-        self.current_stock.setText("")
+        self.current_stock.setText("Initalizing...")
         self.current_stock.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.current_stock)
-        self.layout.addSpacing(100)
+        #self.layout.addSpacing(100)
 
         # Time remaining widget
         self.time_remaining = QLabel()
@@ -143,7 +143,7 @@ class TrainWindow(QMainWindow):
         # Create and start thread 
         self.thread = TrainLogic()
         self.thread.start_time.connect(self.init_time_rem)
-        self.thread.update_curr_stock(self.update_stock_text)
+        self.thread.update_curr_stock.connect(self.update_stock_text)
         self.thread.progress_updated.connect(self.update_progress)
         self.thread.updated_time_rem.connect(self.update_time_rem)
         self.thread.finished.connect(self.reports_complete)
@@ -155,7 +155,7 @@ class TrainWindow(QMainWindow):
 
     # Method for updating the status text for the current stock being evaluated
     def update_stock_text(self, stock_code):
-        self.current_stock.setText(stock_code)
+        self.current_stock.setText(f"Retrieving trend data for {stock_code}")
 
     # Method for updating the progress bar
     def update_progress(self, completed, total): 
