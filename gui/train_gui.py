@@ -15,6 +15,7 @@ from ai_train import train_main
 # Class for running the training 
 class TrainLogic(QThread):
     start_time = Signal(int)
+    update_curr_stock = Signal(str)
     progress_updated = Signal(int, int)
     updated_time_rem = Signal(int)
     finished = Signal()
@@ -40,6 +41,7 @@ class TrainLogic(QThread):
         # For each stock code specified in the CSV file...
         for stock_code in stock_list:
             if self.continue_train:
+                update_curr_stock.emit(stock_code)
                 start_time = time.perf_counter()
 
                 # Redirects to stock_tracker.py
@@ -113,6 +115,13 @@ class TrainWindow(QMainWindow):
         self.progress_bar.setFixedWidth(300)
         self.layout.addWidget(self.progress_bar, alignment=Qt.AlignCenter)
 
+        # Current stock widget
+        self.current_stock = QLabel()
+        self.current_stock.setText("")
+        self.current_stock.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.current_stock)
+        self.layout.addSpacing(100)
+
         # Time remaining widget
         self.time_remaining = QLabel()
         self.time_remaining.setText("0 minutes remaining")
@@ -134,6 +143,7 @@ class TrainWindow(QMainWindow):
         # Create and start thread 
         self.thread = TrainLogic()
         self.thread.start_time.connect(self.init_time_rem)
+        self.thread.update_curr_stock(self.update_stock_text)
         self.thread.progress_updated.connect(self.update_progress)
         self.thread.updated_time_rem.connect(self.update_time_rem)
         self.thread.finished.connect(self.reports_complete)
@@ -143,10 +153,9 @@ class TrainWindow(QMainWindow):
     def init_time_rem(self, time_rem):
         self.time_remaining.setText(f"{time_rem} minutes remaining")
 
-    # Method for ending the training process when the user presses the cancel button
-    def stop_training(self):
-       self.thread.stop()
-       self.close()
+    # Method for updating the status text for the current stock being evaluated
+    def update_stock_text(self, stock_code):
+        self.current_stock.setText(stock_code)
 
     # Method for updating the progress bar
     def update_progress(self, completed, total): 
@@ -171,7 +180,8 @@ class TrainWindow(QMainWindow):
             "</div>"
         )
 
-        # Hide time remaining text
+        # Hide current stock text and the time remaining text
+        self.current_stock.hide()
         self.time_remaining.hide()
 
         # Reset progress bar
@@ -209,6 +219,11 @@ class TrainWindow(QMainWindow):
     def close_window(self):
         self.return_home.setEnabled(False)
         self.close()
+
+    # Method for ending the training process when the user presses the cancel button
+    def stop_training(self):
+       self.thread.stop()
+       self.close()
 
 # Method for managing the second option
 def manage_option_two():
