@@ -2,9 +2,15 @@
 ## Written by Brian Munger, 2025
 
 ### What is Munger's Signals?
-Munger's Signals is a personal project that combines Selenium, AI, and Python to deliver advice regarding the stock market. It is designed with short to medium length trading in mind, giving you the indicator to buy, sell, or hold your requested stock. 
+Munger's Signals is a personal project that combines Selenium, AI, and Python to deliver advice regarding the stock market. It is designed with short to medium-term trading in mind, providing you with the indicator to buy, sell, or hold your requested stock. 
 
 ### How do I download and use it?
+*NOTE:* Python is required to run this project. You can install the latest version [here](https://www.python.org/downloads/)!  
+*NOTE:* Upon first run, the program may take a moment to open, as the graphical user interface library may need to be installed.  
+To download this project, navigate to the "releases" tab on the right side of this GitHub repository. Located at the bottom of the latest release, download the source code in the zip format. Once downloaded, extract the folder, and run the MungersSignals application (.exe) file. If any required packages are missing, the program will automatically install them. 
+
+### Disclaimer
+This project is for recreational and educational purposes only and does not constitute financial advice. The stock market is often unpredictable. Do your own research and consult a qualified financial professional before making investment decisions!
 
 ### How does it work?
 There are two different modes of operation: analysis and training.
