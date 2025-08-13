@@ -12,7 +12,7 @@ def run_install_gui():
     window.show()
     app.exec()
 
-    from main import run_gui
+    from logic import run_gui
     run_gui(app)
 
 # Method for installing the required libraries for the program

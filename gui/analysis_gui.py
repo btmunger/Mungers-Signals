@@ -7,7 +7,7 @@ from PySide6.QtGui import QIcon
 import ctypes
 
 # Import functions from stock_tracker.py and ai_analysis.py
-from main import init_webdriver, get_stock_data_with_retry
+from logic import init_webdriver, get_stock_data_with_retry
 from trends import get_trend_report
 from ai_analysis import ai_analysis
 

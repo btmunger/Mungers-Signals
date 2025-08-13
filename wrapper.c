@@ -25,3 +25,4 @@ int main(int argc, char *argv[]) {
 }
 
 // gcc wrapper.c gui/icon/icon.res -IC:/Python313/include -LC:/Python313/libs -lpython313 -o MungersSignals.exe -mwindows
+// pip freeze | % { $_.split('==')[0] } | % { pip uninstall -y $_ }
