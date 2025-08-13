@@ -182,6 +182,11 @@ def train_model(data_frame):
     # Save result of training to log file
     time_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
     log_name = "train_log/training_result_" + time_stamp + ".txt"
+
+    # Create directory if this is first time running
+    if not os.path.isdir("train_log/"):
+        os.mkdir("train_log/")
+
     with open(log_name, "w") as file:
         file.write(classification_report(y_test, y_pred, zero_division=0))
         file.write(f"Model trained on {entries_num} entries, saved as {trained_model_name}")
