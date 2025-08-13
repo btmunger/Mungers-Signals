@@ -10,7 +10,7 @@ Munger's Signals is a personal project that combines Selenium, AI, and Python to
 
 To download this project, navigate to the "releases" tab on the right side of this GitHub repository. Located at the bottom of the latest release, download the source code in the zip format. Once downloaded, extract the folder, and run the MungersSignals application (.exe) file. If any required packages are missing, the program will automatically install them. 
 
-Alternatively, feel free to 'git clone' this repository into your workstation! "py ./bootstrap.py" runs the program in the same way the .exe file runs it. If you are encountering any issues with the program, it is smart to run it via the terminal with this command to see what errors are thrown.  
+Alternatively, feel free to 'git clone' this repository into your workstation! "py ./bootstrap.py" runs the program in the same way the .exe file runs it. If you are encountering any issues with the program, it may be a good idea to run it via the terminal with this command to see if any errors are thrown.  
 
 ### Disclaimer
 This project is for recreational and educational purposes only and does not constitute financial advice. The stock market is often unpredictable. Do your own research and consult a qualified financial professional before making investment decisions!
