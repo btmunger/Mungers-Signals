@@ -24,5 +24,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+/* Rebuild .exe application */
 // gcc wrapper.c gui/icon/icon.res -IC:/Python313/include -LC:/Python313/libs -lpython313 -o MungersSignals.exe -mwindows
+/* Uninstall all pip packages */
 // pip freeze | % { $_.split('==')[0] } | % { pip uninstall -y $_ }

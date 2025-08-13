@@ -12,6 +12,7 @@ def run_install_gui():
     window.show()
     app.exec()
 
+    # Redirect to logic.py
     from logic import run_gui
     run_gui(app)
 
@@ -21,9 +22,10 @@ def install_libs():
     packages = ["joblib", "numpy", "pandas", "selenium", "scikit-learn", "urllib3", "transformers", "torch"]
     CREATE_NO_WINDOW = 0x08000000
 
+    # Install packages
     subprocess.check_call(
         [shutil.which("pythonw"), "-m", "pip", "install"] + packages,
-        creationflags=CREATE_NO_WINDOW
+        creationflags=CREATE_NO_WINDOW # Hide terminal window
     )
 
 if __name__ == "__main__":

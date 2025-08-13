@@ -15,9 +15,11 @@ def boot_main():
     except ImportError:
         python_exe = shutil.which("pythonw")
 
+        # Install GUI for installation screen (and rest of GUI screens eventually)
         subprocess.check_call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
         subprocess.check_call([python_exe, "-m", "pip", "install", "PySide6"])
  
+        # Start a new process and call install_libraries file, cleanly close current process
         subprocess.Popen([python_exe, "install_libraries.py"] + sys.argv[1:])
         sys.exit(0)
 
