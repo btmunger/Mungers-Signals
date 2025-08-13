@@ -13,12 +13,12 @@ def boot_main():
         from main import run_gui
         run_gui(app)
     except ImportError:
-        libraries_installed = False
+        python_exe = shutil.which("pythonw")
 
-        subprocess.check_call(["pip", "install", "--upgrade", "pip"])
-        subprocess.check_call(["pip", "install", "PySide6"])
+        subprocess.check_call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
+        subprocess.check_call([python_exe, "-m", "pip", "install", "PySide6"])
 
-        os.execv(shutil.which("pythonw"), [shutil.which("pythonw"), "install_libraries.py"] + sys.argv[1:])
+        os.execv(python_exe, [python_exe, "install_libraries.py"] + sys.argv[1:])
 
 if __name__ == "__main__":
     boot_main()

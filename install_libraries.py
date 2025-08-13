@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 import sys
 
 # Method for running the install GUI
@@ -21,7 +22,7 @@ def install_libs():
     CREATE_NO_WINDOW = 0x08000000
 
     subprocess.check_call(
-        [sys.executable, "-m", "pip", "install"] + packages,
+        [shutil.which("pythonw"), "-m", "pip", "install"] + packages,
         creationflags=CREATE_NO_WINDOW
     )
 
