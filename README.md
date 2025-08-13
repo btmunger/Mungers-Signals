@@ -5,12 +5,12 @@
 Munger's Signals is a personal project that combines Selenium, AI, and Python to deliver advice regarding the stock market. It is designed with short to medium-term trading in mind, providing you with the indicator to buy, sell, or hold your requested stock. 
 
 ### How do I download and use it?
-*NOTE:* Python (version 3.13 or greater) is required to run this project; you can install the latest version [here](https://www.python.org/downloads/)! Chrome is also required to run this project; you can install the latest version [here](https://www.google.com/chrome/dr/download/?brand=CHBD&ds_kid=43700082450527897&gclsrc=aw.ds&gad_source=1&gad_campaignid=22852336242&gbraid=0AAAAAoY3CA6-NnGc4wtcEMCDSjo5gQEA-&gclid=Cj0KCQjwqebEBhD9ARIsAFZMbfx2CiNOpPy9cbfIPeC1Jb3JvN9jo_Yc0-prZY9bK0w04HdgnZ7oGQ4aAiMjEALw_wcB)  
+*NOTE:* Python (version 3.13 or greater) is required to run this project; you can install the latest version [here](https://www.python.org/downloads/)! Chrome is also required to run this project; you can install the latest version [here](https://www.google.com/chrome/dr/download/?brand=CHBD&ds_kid=43700082450527897&gclsrc=aw.ds&gad_source=1&gad_campaignid=22852336242&gbraid=0AAAAAoY3CA6-NnGc4wtcEMCDSjo5gQEA-&gclid=Cj0KCQjwqebEBhD9ARIsAFZMbfx2CiNOpPy9cbfIPeC1Jb3JvN9jo_Yc0-prZY9bK0w04HdgnZ7oGQ4aAiMjEALw_wcB).    
 *NOTE:* Upon first run, the program may take a moment to open, as the graphical user interface library may need to be installed.  
 
 To download this project, navigate to the "releases" tab on the right side of this GitHub repository. Located at the bottom of the latest release, download the source code in the zip format. Once downloaded, extract the folder, and run the MungersSignals application (.exe) file. If any required packages are missing, the program will automatically install them. 
 
-Alternatively, feel free to 'git clone' this repository into your workstation! "py ./main.py" runs the program in the same way the .exe file runs it. 
+Alternatively, feel free to 'git clone' this repository into your workstation! "py ./bootstrap.py" runs the program in the same way the .exe file runs it. If you are encountering any issues with the program, it is smart to run it via the terminal with this command to see what errors are thrown.  
 
 ### Disclaimer
 This project is for recreational and educational purposes only and does not constitute financial advice. The stock market is often unpredictable. Do your own research and consult a qualified financial professional before making investment decisions!
