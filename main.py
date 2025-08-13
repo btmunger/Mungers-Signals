@@ -259,3 +259,7 @@ def run_gui(app):
         run_gui(app)
     elif option == -1:
         print("\nUser closed the application. Bye!\n")
+
+if __name__ == "__main__":
+    from bootstrap import boot_main
+    boot_main()

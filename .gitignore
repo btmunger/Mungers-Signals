@@ -1,6 +1,4 @@
 trend_reports/
 __pycache__/
-temp/
 train_log/
 wrapper.c
-exe_icon/

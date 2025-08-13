@@ -1,37 +1,24 @@
 import subprocess
+import shutil
 import sys
+import os
 
-# Method for installing the required libraries
-def install_libraries(app):
-    from gui.install_gui import run_install_window
-    window = run_install_window()
-    window.show()
-    app.exec()
+def boot_main():
+    # Try to import PySide6 library
+    try:
+        from PySide6.QtWidgets import QApplication
+        app = QApplication(sys.argv)
 
-# Variable that tracks if missing libraries need to be installed
-libraries_installed = True
+        # Call main function to run 
+        from main import run_gui
+        run_gui(app)
+    except ImportError:
+        libraries_installed = False
 
-# Try to import PySide6 library
-try:
-    from PySide6.QtWidgets import QApplication
-    print("")
-except ImportError:
-    print("\nFirst time running, installing required libraries...\n")
-    libraries_installed = False
+        subprocess.check_call(["pip", "install", "--upgrade", "pip"])
+        subprocess.check_call(["pip", "install", "PySide6"])
 
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "PySide6"])
+        os.execv(shutil.which("pythonw"), [shutil.which("pythonw"), "install_libraries.py"] + sys.argv[1:])
 
-    from PySide6.QtWidgets import QApplication  # Try again
-
-# Start GUI
-app = QApplication(sys.argv)
-
-# Install rest of libraries w/ GUI screen if required
-if not libraries_installed:
-    from main import install_libraries
-    install_libraries(app)
-
-# Call main function to run / install libraries if required
-from main import run_gui
-run_gui(app)
+if __name__ == "__main__":
+    boot_main()
