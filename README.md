@@ -29,3 +29,5 @@ Thank you to all of the resources that made this project possible!
 - [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert)
 - [scikit-learn](https://scikit-learn.org/stable/)
 - [PySide6](https://pypi.org/project/PySide6/)
+
+##### Additional documentation is located in the /docs directory. 
