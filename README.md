@@ -13,7 +13,7 @@ Please consider these notes before installing the project:
 * *NOTE:* Python (version 3.13 or greater) is required to run this project; you can install the latest version [here](https://www.python.org/downloads/)! Chrome is also required to run this project; you can install the latest version [here](https://www.google.com/chrome/dr/download/?brand=CHBD&ds_kid=43700082450527897&gclsrc=aw.ds&gad_source=1&gad_campaignid=22852336242&gbraid=0AAAAAoY3CA6-NnGc4wtcEMCDSjo5gQEA-&gclid=Cj0KCQjwqebEBhD9ARIsAFZMbfx2CiNOpPy9cbfIPeC1Jb3JvN9jo_Yc0-prZY9bK0w04HdgnZ7oGQ4aAiMjEALw_wcB).    
 * *NOTE:* Upon first run, the program may take a moment to open, as the graphical user interface library may need to be installed.  
 
-To download this project, navigate to the "releases" tab on the right side of this GitHub repository. Located at the bottom of the latest release, download the source code in the zip format. Once downloaded, extract the folder, and run the MungersSignals application (.exe) file. If any required packages are missing, the program will automatically install them. 
+To download and install this project, navigate to the "releases" tab on the right side of this GitHub repository. Located at the bottom of the latest release, download the source code in the zip format. Once installed, extract the folder, and run the MungersSignals application (.exe) file. If any required packages are missing, the program will automatically install them. 
 
 Alternatively, feel free to 'git clone' this repository into your workstation! "python ./bootstrap.py" runs the program in the same way the .exe file runs it. If you are encountering any issues with the program, it may be a good idea to run it via the terminal with this command to see if any errors are thrown.  
 
